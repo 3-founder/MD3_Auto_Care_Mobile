@@ -1,8 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:md3_auto_care/controllers/productController.dart';
 import 'package:md3_auto_care/formatter/thousandsSeparatorInputFormatter.dart';
 
 class AddProductQuotation extends StatefulWidget {
-  const AddProductQuotation({super.key});
+  var idPenawaran;
+  AddProductQuotation({super.key, required this.idPenawaran});
 
   @override
   State<AddProductQuotation> createState() => _AddProductQuotationState();
@@ -26,6 +29,7 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
   @override
   void initState() {
     super.initState();
+    print(widget.idPenawaran);
   }
 
   @override
@@ -37,7 +41,7 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
           "Produk Penawaran",
           style: TextStyle(fontSize: 18),
         ),
-        foregroundColor: Color(0xFF686868),
+        foregroundColor: const Color(0xFF686868),
         backgroundColor: Colors.white,
         centerTitle: false,
         elevation: 1,
@@ -56,7 +60,7 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
               height: 50,
               child: TextField(
                 style: const TextStyle(color: Color(0xFF616161)),
-                cursorColor: Color(0xFF737373),
+                cursorColor: const Color(0xFF737373),
                 decoration: const InputDecoration(
                   hintText: 'Contoh. Carbon Cleaner',
                   hintStyle: TextStyle(color: Color(0xFF8F8F8F), fontSize: 13),
@@ -376,35 +380,53 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () async {
-                  // if (mounted) {
-                  //   setState(() {
-                  //     isLoadingAdd = true;
-                  //   });
-                  // }
-                  // // cek internet connection
-                  // final connectivityResult =
-                  //     await (Connectivity().checkConnectivity());
-                  // if (connectivityResult == ConnectivityResult.none) {
-                  //   print("NO INTERNET");
-                  // } else {
-                  //   TransportationController().postTransportation(
-                  //     widget.id_customer,
-                  //     tipeKendaraan.text,
-                  //     "${lama_penggunaan.text} jam",
-                  //     jumlah_unit.text,
-                  //     "${dateTime.year}-${dateTime.month}-${dateTime.day}",
-                  //     '${hargaC.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
-                  //     tujuan_kendaraan.text,
-                  //   );
-                  // }
-                  // if (mounted) {
-                  //   setState(() {
-                  //     isLoadingAdd = false;
-                  //   });
-                  // }
+                  if (mounted) {
+                    setState(() {
+                      isLoadingAdd = true;
+                    });
+                  }
+                  // cek internet connection
+                  final connectivityResult =
+                      await (Connectivity().checkConnectivity());
+                  if (connectivityResult == ConnectivityResult.none) {
+                    print("NO INTERNET");
+                  } else {
+                    print(produkItem.text);
+                    print(tipeItem.text);
+                    print(kemasan.text);
+                    print(tipeKemasan.text);
+                    print(mesin.text);
+                    print(tipeMesin.text);
+                    print(
+                        '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}');
+                    ProductController().postProduct(
+                      produkItem.text,
+                      tipeItem.text,
+                      kemasan.text,
+                      tipeKemasan.text,
+                      mesin.text,
+                      tipeMesin.text,
+                      '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
+                      widget.idPenawaran,
+                    );
+                    // TransportationController().postTransportation(
+                    //   widget.id_customer,
+                    //   tipeKendaraan.text,
+                    //   "${lama_penggunaan.text} jam",
+                    //   jumlah_unit.text,
+                    //   "${dateTime.year}-${dateTime.month}-${dateTime.day}",
+                    //   '${hargaC.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
+                    //   tujuan_kendaraan.text,
+                    // );
+                  }
+                  if (mounted) {
+                    setState(() {
+                      isLoadingAdd = false;
+                    });
+                  }
                 },
                 child: Text(
-                  isLoadingAdd ? 'Loading...' : 'Tambah Transportasi',
+                  isLoadingAdd ? 'Loading...' : 'Tambah Product',
                   style: TextStyle(fontSize: 12),
                 ),
                 style: ButtonStyle(

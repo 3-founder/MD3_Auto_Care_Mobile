@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:http/http.dart' as http;
+import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/view/pages/product/data_product.dart';
 
 class HistoryPenawaran extends StatefulWidget {
@@ -23,12 +28,72 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
   bool filter = false;
   String? startDate, endDate;
 
-  var isLoading = false;
-
   @override
   void initState() {
     super.initState();
-    // getCustomer();
+    getPenawaran();
+  }
+
+  // get data penawaran from api
+  var isLoading = false;
+  List<dynamic> dataPenawaran = [];
+  List<dynamic> filteredList = [];
+  void getPenawaran() async {
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
+
+    String url = "$baseUrl/penawaran";
+    String urlFilter =
+        "$baseUrl/filter/penawaran?start_date=$startDate&end_date=$endDate";
+
+    try {
+      http.Response response = await http.get(
+          Uri.parse(filter ? urlFilter : url),
+          headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        dataPenawaran = json.decode(response.body)['data'];
+        filteredList = dataPenawaran;
+        // print('Cek data Penawaran : $dataPenawaran');
+      } else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Filter Data
+  void _filterData(String query) {
+    if (mounted) {
+      setState(() {
+        filteredList = dataPenawaran
+                .where((item) => item['nama_customer']
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+                .toList()
+                .isEmpty
+            ? filteredList = dataPenawaran
+                .where((item) => item['hal_penawaran']
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+                .toList()
+            : filteredList = dataPenawaran
+                .where((item) => item['nama_customer']
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+                .toList();
+        // print(filteredList);
+      });
+    }
   }
 
   // Filter
@@ -207,24 +272,24 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
                               height: 35,
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  // final connectivityResult =
-                                  //     await (Connectivity()
-                                  //         .checkConnectivity());
-                                  // if (connectivityResult ==
-                                  //     ConnectivityResult.none) {
-                                  //   print("NO INTERNET");
-                                  // } else {
-                                  //   filter = true;
-                                  //   startDate =
-                                  //       '${dateTime.year}-${dateTime.month}-${dateTime.day}';
-                                  //   endDate =
-                                  //       '${dateTime2.year}-${dateTime2.month}-${dateTime2.day}';
-                                  //   getCustomer();
-                                  //   Get.back();
-                                  //   if (mounted) {
-                                  //     setState(() {});
-                                  //   }
-                                  // }
+                                  final connectivityResult =
+                                      await (Connectivity()
+                                          .checkConnectivity());
+                                  if (connectivityResult ==
+                                      ConnectivityResult.none) {
+                                    print("NO INTERNET");
+                                  } else {
+                                    filter = true;
+                                    startDate =
+                                        '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+                                    endDate =
+                                        '${dateTime2.year}-${dateTime2.month}-${dateTime2.day}';
+                                    getPenawaran();
+                                    if (mounted) {
+                                      setState(() {});
+                                    }
+                                    Navigator.of(context).pop();
+                                  }
                                 },
                                 child: const Text('Cari'),
                                 style: ButtonStyle(
@@ -242,14 +307,6 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
                       ),
                     ],
                   ),
-
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     _togglePopupVisibility();
-                  //     Navigator.of(context).pop();
-                  //   },
-                  //   child: Text('Close'),
-                  // ),
                 ],
               );
             },
@@ -300,8 +357,7 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
                           width: double.infinity,
                           height: 50,
                           child: TextField(
-                            // onChanged: _filterData,
-                            onChanged: null,
+                            onChanged: _filterData,
                             style: const TextStyle(color: Color(0xFF616161)),
                             cursorColor: const Color(0xFF737373),
                             decoration: const InputDecoration(
@@ -402,183 +458,175 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
                   //           ),
                   //         ],
                   //       )
-                  //     : dataCustomer.isEmpty
-                  //         ? const Column(
-                  //             children: [
-                  //               SizedBox(height: 100),
-                  //               Text(
-                  //                 "Data masih kosong!\nSilahkan buat Quotation\nTerlebih dahulu.",
-                  //                 style: TextStyle(
-                  //                   fontSize: 15,
-                  //                   color: Color(0xFF626262),
-                  //                   fontWeight: FontWeight.bold,
-                  //                 ),
-                  //                 textAlign: TextAlign.center,
-                  //               ),
-                  //             ],
-                  //           )
-                  //         : filteredList.isEmpty
-                  //             ? const Column(
-                  //                 children: [
-                  //                   SizedBox(height: 100),
-                  //                   Text(
-                  //                     "Data yang anda cari kosong!\nCoba cari dengan kata\nkunci yang lain.",
-                  //                     style: TextStyle(
-                  //                       fontSize: 15,
-                  //                       color: Color(0xFF626262),
-                  //                       fontWeight: FontWeight.bold,
-                  //                     ),
-                  //                     textAlign: TextAlign.center,
-                  //                   ),
-                  //                 ],
-                  //               )
-                  //             :
-                  ListView.builder(
-                    // itemCount: filteredList.length,
-                    itemCount: 4,
-                    reverse: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.all(8),
-                    itemBuilder: (context, index) {
-                      // final item = filteredList[index];
-                      return InkWell(
-                        splashColor: const Color(0xFF7EECFF),
-                        onTap: () async {
-                          Get.to(DataProduct());
-                          // ceck Interner Connection
-                          // final connectivityResult =
-                          //     await (Connectivity()
-                          //         .checkConnectivity());
-                          // if (connectivityResult ==
-                          //     ConnectivityResult.none) {
-                          //   debugPrint("NO INTERNET");
-                          // } else {
-                          //   // to Data Transportation
-                          //   Get.to(
-                          //     DataTransportationPage(
-                          //       id_customer: item['id'],
-                          //       isBack: 'true',
-                          //     ),
-                          //   );
-                          //   search.text = '';
-                          //   getCustomer();
-                          // }
-                        },
-                        child: Column(
+                  //     :
+                  dataPenawaran.isEmpty
+                      ? const Column(
                           children: [
-                            const SizedBox(height: 5),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFA3E2FD),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(7),
+                            SizedBox(height: 100),
+                            Text(
+                              "Data masih kosong!\nSilahkan buat Quotation\nTerlebih dahulu.",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF626262),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        )
+                      : filteredList.isEmpty
+                          ? const Column(
+                              children: [
+                                SizedBox(height: 100),
+                                Text(
+                                  "Data yang anda cari kosong!\nCoba cari dengan kata\nkunci yang lain.",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF626262),
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFDBDBDB),
-                                      blurRadius: 2,
-                                      offset: Offset(1, 2), // Shadow position
-                                    ),
-                                  ],
+                                  textAlign: TextAlign.center,
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
+                              ],
+                            )
+                          : ListView.builder(
+                              itemCount: filteredList.length,
+                              // itemCount: dataPenawaran.length,
+                              reverse: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: const EdgeInsets.all(8),
+                              itemBuilder: (context, index) {
+                                final item = filteredList[index];
+                                return InkWell(
+                                  splashColor: const Color(0xFF7EECFF),
+                                  onTap: () async {
+                                    // ceck Interner Connection
+                                    final connectivityResult =
+                                        await (Connectivity()
+                                            .checkConnectivity());
+                                    if (connectivityResult ==
+                                        ConnectivityResult.none) {
+                                      debugPrint("NO INTERNET");
+                                    } else {
+                                      // to Data Transportation
+                                      Get.to(
+                                        DataProduct(idPenawaran: item['id']),
+                                      );
+                                      search.text = '';
+                                      getPenawaran();
+                                    }
+                                  },
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            // item['nama_customer'],
-                                            "nama customer",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF353535),
+                                      const SizedBox(height: 5),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: Container(
+                                          width: double.infinity,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFA3E2FD),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(7),
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Color(0xFFDBDBDB),
+                                                blurRadius: 2,
+                                                offset: Offset(
+                                                    1, 2), // Shadow position
+                                              ),
+                                            ],
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      item['nama_customer'],
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xFF353535),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      item['tanggal'],
+                                                      style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xFF5E5E5E),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  '${item['hal_penawaran']}',
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color(0xFF5E5E5E),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Container(
+                                                  width: double.infinity,
+                                                  height: 1,
+                                                  color: Colors.white,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    const Text(
+                                                      "Tanda Tangan",
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xFF5E5E5E),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      item['signature_user']
+                                                          ['nama_lengkap'],
+                                                      style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xFF5E5E5E),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          Text(
-                                            // item['tanggal'],
-                                            "Tanggal",
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF5E5E5E),
-                                            ),
-                                          ),
-                                          // Container(
-                                          //   width: 15,
-                                          //   height: 65,
-                                          //   decoration: const BoxDecoration(
-                                          //     color: Color(0xFF00A7EF),
-                                          //     borderRadius: BorderRadius.only(
-                                          //       topLeft: Radius.circular(7),
-                                          //       bottomLeft: Radius.circular(2),
-                                          //       bottomRight: Radius.circular(20),
-                                          //     ),
-                                          //   ),
-                                          // ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        // '${item['nama_perusahaan']}, ${item['kota']}',
-                                        'hal penawaran',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF5E5E5E),
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 1,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            "Tanda Tangan",
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF5E5E5E),
-                                            ),
-                                          ),
-                                          Text(
-                                            // item['nama_lengkap'],
-                                            "nama lengkap",
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF5E5E5E),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      const SizedBox(height: 5),
                                     ],
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
-                            const SizedBox(height: 5),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
