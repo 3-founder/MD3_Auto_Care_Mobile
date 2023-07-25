@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
+import 'package:md3_auto_care/widget/snackbarWidget.dart';
+import 'package:http/http.dart' as http;
 
 class QuotationPage extends StatefulWidget {
   const QuotationPage({super.key});
@@ -16,17 +21,10 @@ class _QuotationPageState extends State<QuotationPage> {
   DateTime dateTime =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
-  var nomorKutipanC = TextEditingController(text: '');
-  var kutipanPenyewaanC = TextEditingController(text: '');
-  var namaCustomerC = TextEditingController(text: '');
-  var emailC = TextEditingController(text: '');
-  var namaPerusahaanC = TextEditingController(text: '');
-  var kotaC = TextEditingController(text: '');
-  var alamatC = TextEditingController(text: '');
-  var kodePosC = TextEditingController(text: '');
+  var noPenawaran = TextEditingController(text: '');
+  var halPenawaran = TextEditingController(text: '');
+  var namaCustomer = TextEditingController(text: '');
   var tanggalC = null;
-  var noHpC = TextEditingController(text: '');
-  var komentarC = TextEditingController(text: '');
   int? valueTtd;
 
   var isLoadingSimpan = false;
@@ -38,9 +36,45 @@ class _QuotationPageState extends State<QuotationPage> {
   @override
   void initState() {
     super.initState();
+    getDataSignature();
   }
 
   var isLoading = false;
+  List<dynamic> result = [];
+  void getDataSignature() async {
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    String url = '$baseUrl/user-signature';
+    try {
+      var response = await http
+          .get(Uri.parse(url), headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body)['message'];
+        if (mounted) {
+          setState(() {
+            result = data;
+            print(result);
+            if (result.isEmpty) {
+              SnackbarWidget().snackbarError(
+                  "Data Tanda-tangan masih kosong, silahkan buat ttd.");
+            }
+          });
+        }
+      } else {
+        print("Get data UserSignature gagal");
+      }
+    } catch (e) {
+      debugPrint("$e");
+    }
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +131,7 @@ class _QuotationPageState extends State<QuotationPage> {
                       ),
                       autocorrect: false,
                       maxLines: 1,
-                      controller: nomorKutipanC,
+                      controller: noPenawaran,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
@@ -136,7 +170,7 @@ class _QuotationPageState extends State<QuotationPage> {
                       ),
                       autocorrect: false,
                       maxLines: 1,
-                      controller: kutipanPenyewaanC,
+                      controller: halPenawaran,
                       textInputAction: TextInputAction.next,
                     ),
                   ),
@@ -171,7 +205,7 @@ class _QuotationPageState extends State<QuotationPage> {
                       ),
                       autocorrect: false,
                       maxLines: 1,
-                      controller: namaCustomerC,
+                      controller: namaCustomer,
                       textInputAction: TextInputAction.next,
                     ),
                   ),
@@ -268,14 +302,14 @@ class _QuotationPageState extends State<QuotationPage> {
                           valueTtd = value as int;
                         });
                       }),
-                      items: ttd_user.map((item) {
+                      items: result.map((item) {
                         return DropdownMenuItem(
                           child: Text(
-                            item,
+                            item['nama_lengkap'],
                             style: const TextStyle(
                                 color: Color(0xFF8F8F8F), fontSize: 13),
                           ),
-                          value: item,
+                          value: item['id'],
                         );
                       }).toList(),
                     ),
