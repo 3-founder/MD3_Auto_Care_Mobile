@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:md3_auto_care/pdf/penawaranPdf.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
 import 'package:md3_auto_care/widget/dataPenawaranWidget.dart';
@@ -214,38 +215,13 @@ class _DataProductState extends State<DataProduct> {
                 child: ElevatedButton(
                   onPressed: () async {
                     // cek Internet Connection
-                    // final connectivityResult =
-                    //     await (Connectivity().checkConnectivity());
-                    // if (connectivityResult ==
-                    //     ConnectivityResult.none) {
-                    //   print("NO INTERNET");
-                    // } else {
-                    //   _quotationPopUp(
-                    //     // data company/perusahaan
-                    //     dataCompany['logo'],
-                    //     dataCompany['alamat'],
-                    //     dataCompany['kota'],
-                    //     dataCompany['no_hp'],
-                    //     dataCompany['email'],
-                    //     // orang yang bertanda tangan
-                    //     dataQuotation['nama_lengkap'],
-                    //     dataQuotation['tanda_tangan'],
-                    //     // data customer
-                    //     widget.id_customer,
-                    //     dataQuotation['kutipan_sewa'],
-                    //     dataQuotation['tanggal'],
-                    //     dataQuotation['no_quotation'],
-                    //     dataQuotation['nama_customer'],
-                    //     dataQuotation['email'],
-                    //     dataQuotation['nama_perusahaan'],
-                    //     dataQuotation['nama_jalan'],
-                    //     dataQuotation['kota'],
-                    //     dataQuotation['kode_pos'],
-                    //     dataQuotation['no_hp'],
-                    //     dataQuotation['komentar'],
-                    //   );
-
-                    // }
+                    final connectivityResult =
+                        await (Connectivity().checkConnectivity());
+                    if (connectivityResult == ConnectivityResult.none) {
+                      print("NO INTERNET");
+                    } else {
+                      PenawaranPdf().printPdf();
+                    }
                   },
                   child: const Text('Generate Penawaran',
                       style: TextStyle(fontSize: 12)),
