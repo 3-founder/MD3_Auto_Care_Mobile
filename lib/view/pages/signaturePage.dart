@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:md3_auto_care/controllers/signatureUserController.dart';
 import 'package:md3_auto_care/widget/materialDialogWidget.dart';
 import 'package:signature/signature.dart';
 
-class SignatureInvocePage extends StatefulWidget {
-  const SignatureInvocePage({super.key});
+class SignaturePage extends StatefulWidget {
+  const SignaturePage({super.key});
 
   @override
-  State<SignatureInvocePage> createState() => _SignatureInvocePageState();
+  State<SignaturePage> createState() => _SignaturePageState();
 }
 
-class _SignatureInvocePageState extends State<SignatureInvocePage> {
+class _SignaturePageState extends State<SignaturePage> {
   Uint8List? exportedImage;
   TextEditingController namaLengkapC = TextEditingController(text: '');
 
@@ -129,28 +130,29 @@ class _SignatureInvocePageState extends State<SignatureInvocePage> {
                           height: 52,
                           child: ElevatedButton(
                             onPressed: () async {
-                              // if (mounted) {
-                              //   setState(() {
-                              //     isLoadingSimpan = true;
-                              //   });
-                              // }
+                              if (mounted) {
+                                setState(() {
+                                  isLoadingSimpan = true;
+                                });
+                              }
                               // final connectivityResult =
                               //     await (Connectivity().checkConnectivity());
                               // if (connectivityResult ==
                               //     ConnectivityResult.none) {
                               //   print("NO INTERNET");
                               // } else {
-                              //   exportedImage = await _controller.toPngBytes();
-                              //   List<int> byte = (exportedImage == null)
-                              //       ? []
-                              //       : exportedImage!;
-                              //   SignatureUserController()
-                              //       .addSignatureUser(namaLengkapC.text, byte);
-                              //   if (mounted) {
-                              //     setState(() {
-                              //       isLoadingSimpan = false;
-                              //     });
-                              //   }
+                              exportedImage = await _controller.toPngBytes();
+                              List<int> byte =
+                                  (exportedImage == null) ? [] : exportedImage!;
+                              SignatureUserController()
+                                  .addSignatureUser(namaLengkapC.text, byte);
+                              // print(exportedImage);
+                              if (mounted) {
+                                setState(() {
+                                  isLoadingSimpan = false;
+                                });
+                              }
+
                               // }
                             },
                             child:

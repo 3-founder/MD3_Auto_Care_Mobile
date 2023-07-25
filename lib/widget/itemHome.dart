@@ -3,13 +3,13 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:md3_auto_care/view/pages/history/menuHistory.dart';
 import 'package:md3_auto_care/view/pages/quotation/quotaionPage.dart';
-import 'package:md3_auto_care/view/pages/signatureInvocePage.dart';
+import 'package:md3_auto_care/view/pages/signaturePage.dart';
 
 class ItemHome {
   Widget createSignature(bool isMobile) {
     return InkWell(
       onTap: () async {
-        Get.to(SignatureInvocePage());
+        Get.to(SignaturePage());
       },
       child: Container(
         decoration: const BoxDecoration(
