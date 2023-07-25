@@ -30,6 +30,20 @@ class SnackbarWidget {
     );
   }
 
+  void snackbarDanger(String msg) {
+    Get.showSnackbar(
+      GetSnackBar(
+        title: "Peringantan!",
+        message: msg,
+        icon: const Icon(
+          Icons.error_outline,
+        ),
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void snackbar() {
     // if(){
 

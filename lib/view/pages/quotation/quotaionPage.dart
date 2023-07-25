@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:md3_auto_care/controllers/quotationController.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
 import 'package:md3_auto_care/widget/snackbarWidget.dart';
@@ -321,44 +323,37 @@ class _QuotationPageState extends State<QuotationPage> {
                     height: 45,
                     child: ElevatedButton(
                       onPressed: () async {
-                        Get.to(AddProductQuotation());
-                        // if (mounted) {
-                        //   setState(() {
-                        //     isLoadingSimpan = true;
-                        //   });
-                        // }
-                        // final connectivityResult =
-                        //     await (Connectivity().checkConnectivity());
-                        // if (connectivityResult == ConnectivityResult.none) {
-                        //   print("NO INTERNET");
-                        // } else {
-                        //   // Get.to(DataTransportationPage(id_customer: 4));
-                        //   if (valueTtd != null) {
-                        //     QuotationController().postQuotation(
-                        //       kutipanPenyewaanC.text,
-                        //       namaCustomerC.text,
-                        //       emailC.text,
-                        //       namaPerusahaanC.text,
-                        //       kotaC.text,
-                        //       alamatC.text,
-                        //       kodePosC.text,
-                        //       '${dateTime.year}-${dateTime.month}-${dateTime.day}',
-                        //       nomorKutipanC.text,
-                        //       '${noHpC.text}',
-                        //       komentarC.text,
-                        //       '',
-                        //       valueTtd!,
-                        //     );
-                        //   } else {
-                        //     SnackbarWidget()
-                        //         .snackbarError("Tanda tangan Wajib di pilih");
-                        //   }
-                        // }
-                        // if (mounted) {
-                        //   setState(() {
-                        //     isLoadingSimpan = false;
-                        //   });
-                        // }
+                        // Get.to(AddProductQuotation());
+                        if (mounted) {
+                          setState(() {
+                            isLoadingSimpan = true;
+                          });
+                        }
+                        final connectivityResult =
+                            await (Connectivity().checkConnectivity());
+                        if (connectivityResult == ConnectivityResult.none) {
+                          print("NO INTERNET");
+                        } else {
+                          // Get.to(DataTransportationPage(id_customer: 4));
+
+                          if (valueTtd != null) {
+                            QuotationController().postQuotation(
+                              noPenawaran.text,
+                              halPenawaran.text,
+                              namaCustomer.text,
+                              '${dateTime.year}-${dateTime.month}-${dateTime.day}',
+                              valueTtd!,
+                            );
+                          } else {
+                            SnackbarWidget()
+                                .snackbarDanger("Tanda tangan Wajib di pilih");
+                          }
+                        }
+                        if (mounted) {
+                          setState(() {
+                            isLoadingSimpan = false;
+                          });
+                        }
                       },
                       child: Text(isLoadingSimpan ? 'Loading...' : 'Simpan'),
                       style: ButtonStyle(
