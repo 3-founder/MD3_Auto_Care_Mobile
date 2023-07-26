@@ -16,6 +16,7 @@ class ProductProvider extends GetConnect {
     String tipeMesin,
     String harga,
     int idPenawaran,
+    String typeProduct,
   ) async {
     final body = json.encode({
       "produk_item": productItem,
@@ -26,6 +27,7 @@ class ProductProvider extends GetConnect {
       "tipe_mesin": tipeMesin,
       "harga": harga,
       "id_penawaran": '$idPenawaran',
+      "type_product": typeProduct,
     });
 
     return post(url, body, headers: {'Accept': 'application/json'});

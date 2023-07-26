@@ -46,6 +46,7 @@ dependencies:
   connectivity_plus: 
   flutter_launcher_icons: ^0.11.0
   share_plus: ^7.0.2
+  syncfusion_flutter_pdf: ^22.1.39
 
 dev_dependencies:
   flutter_test:

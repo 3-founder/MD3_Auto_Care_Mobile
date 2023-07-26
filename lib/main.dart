@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:md3_auto_care/internet_injection/depedency_injection.dart';
 import 'package:md3_auto_care/view/pages/splaceScreen.dart';
 
 void main() {
   runApp(const MyApp());
-  // DepedencyInjection.init();
+  DepedencyInjection.init();
 }
 
 class MyApp extends StatelessWidget {

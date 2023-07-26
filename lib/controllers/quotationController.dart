@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:md3_auto_care/provider/quotationProvider.dart';
+import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class QuotationController extends GetxController {
@@ -108,24 +109,24 @@ class QuotationController extends GetxController {
   //   }
   // }
 
-  // Future<Map<String, dynamic>?> getTransportation(int id_customer) async {
-  //   String url = "$baseUrl/transportation/$id_customer";
-  //   var result;
+  Future<Map<String, dynamic>?> getProductPenawaran(int idPenawaran) async {
+    String url = "$baseUrl/product-penawaran/$idPenawaran";
+    var result;
 
-  //   try {
-  //     http.Response response = await http
-  //         .get(Uri.parse(url), headers: {'Accept': 'application/json'});
-  //     if (response.statusCode == 200) {
-  //       result = json.decode(response.body)['data'];
-  //       return result;
-  //     } else {
-  //       print(response.body);
-  //     }
-  //     return result;
-  //   } catch (e) {
-  //     // SnackbarWidget().snackbarError(
-  //     //     "Server Ada kendala atau mati, silahkan hubungi pihak pengembang");
-  //     print(e);
-  //   }
-  // }
+    try {
+      http.Response response = await http
+          .get(Uri.parse(url), headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        result = json.decode(response.body)['data'];
+        return result;
+      } else {
+        print(response.body);
+      }
+      return result;
+    } catch (e) {
+      // SnackbarWidget().snackbarError(
+      //     "Server Ada kendala atau mati, silahkan hubungi pihak pengembang");
+      print(e);
+    }
+  }
 }

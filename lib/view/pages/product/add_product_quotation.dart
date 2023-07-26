@@ -23,6 +23,7 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
   var mesin = TextEditingController(text: '');
   var tipeMesin = TextEditingController(text: '');
   var harga = TextEditingController(text: '');
+  String? valueTypeProduct;
 
   var isLoadingAdd = false;
 
@@ -31,6 +32,11 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
     super.initState();
     print(widget.idPenawaran);
   }
+
+  List listTypeProduct = [
+    'main',
+    'additional',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -374,6 +380,54 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
               ),
             ),
 
+            const SizedBox(height: 15),
+            const Text(
+              "Type Product",
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 5),
+            SizedBox(
+              height: 53,
+              child: DropdownButtonFormField(
+                decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    borderSide: BorderSide(width: 1, color: Color(0xFF515151)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    borderSide: BorderSide(width: 1, color: Color(0xFFE4E4E4)),
+                  ),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                value: valueTypeProduct,
+                hint: const Text(
+                  "Pilih metode pembayaran",
+                  style: TextStyle(color: Color(0xFF8F8F8F), fontSize: 12),
+                ),
+                onChanged: ((value) {
+                  if (mounted) {
+                    setState(() {
+                      valueTypeProduct = value as String;
+                      print(valueTypeProduct);
+                    });
+                  }
+                }),
+                items: listTypeProduct.map((item) {
+                  return DropdownMenuItem(
+                    child: Text(
+                      "$item".toUpperCase(),
+                      style: const TextStyle(
+                          color: Color(0xFF8F8F8F), fontSize: 13),
+                    ),
+                    value: item,
+                  );
+                }).toList(),
+              ),
+            ),
+
             // Button
             const SizedBox(height: 20),
             SizedBox(
@@ -391,14 +445,6 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
                   if (connectivityResult == ConnectivityResult.none) {
                     print("NO INTERNET");
                   } else {
-                    print(produkItem.text);
-                    print(tipeItem.text);
-                    print(kemasan.text);
-                    print(tipeKemasan.text);
-                    print(mesin.text);
-                    print(tipeMesin.text);
-                    print(
-                        '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}');
                     ProductController().postProduct(
                       produkItem.text,
                       tipeItem.text,
@@ -408,6 +454,7 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
                       tipeMesin.text,
                       '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
                       widget.idPenawaran,
+                      valueTypeProduct!,
                     );
                     // TransportationController().postTransportation(
                     //   widget.id_customer,

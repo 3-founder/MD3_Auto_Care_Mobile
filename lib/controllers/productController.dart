@@ -6,14 +6,16 @@ import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class ProductController {
   void postProduct(
-      String productItem,
-      String tipeItem,
-      String kemasan,
-      String tipeKemasan,
-      String mesin,
-      String tipeMesin,
-      String harga,
-      int idPenawaran) {
+    String productItem,
+    String tipeItem,
+    String kemasan,
+    String tipeKemasan,
+    String mesin,
+    String tipeMesin,
+    String harga,
+    int idPenawaran,
+    String typeProduct,
+  ) {
     try {
       ProductProvider()
           .postProduct(
@@ -25,6 +27,7 @@ class ProductController {
         tipeMesin,
         harga,
         idPenawaran,
+        typeProduct,
       )
           .then((response) {
         if (response.statusCode == 200) {
