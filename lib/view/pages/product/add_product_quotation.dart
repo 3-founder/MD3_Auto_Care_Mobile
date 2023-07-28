@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:md3_auto_care/controllers/productController.dart';
 import 'package:md3_auto_care/formatter/thousandsSeparatorInputFormatter.dart';
+import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class AddProductQuotation extends StatefulWidget {
   var idPenawaran;
@@ -445,26 +446,22 @@ class _AddProductQuotationState extends State<AddProductQuotation> {
                   if (connectivityResult == ConnectivityResult.none) {
                     print("NO INTERNET");
                   } else {
-                    ProductController().postProduct(
-                      produkItem.text,
-                      tipeItem.text,
-                      kemasan.text,
-                      tipeKemasan.text,
-                      mesin.text,
-                      tipeMesin.text,
-                      '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
-                      widget.idPenawaran,
-                      valueTypeProduct!,
-                    );
-                    // TransportationController().postTransportation(
-                    //   widget.id_customer,
-                    //   tipeKendaraan.text,
-                    //   "${lama_penggunaan.text} jam",
-                    //   jumlah_unit.text,
-                    //   "${dateTime.year}-${dateTime.month}-${dateTime.day}",
-                    //   '${hargaC.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
-                    //   tujuan_kendaraan.text,
-                    // );
+                    if (valueTypeProduct == null) {
+                      SnackbarWidget()
+                          .snackbarDanger("Type Produk harus di isi");
+                    } else {
+                      ProductController().postProduct(
+                        produkItem.text,
+                        tipeItem.text,
+                        kemasan.text,
+                        tipeKemasan.text,
+                        mesin.text,
+                        tipeMesin.text,
+                        '${harga.text.replaceAll(RegExp('[^A-Za-z0-9]'), '')}',
+                        widget.idPenawaran,
+                        valueTypeProduct!,
+                      );
+                    }
                   }
                   if (mounted) {
                     setState(() {

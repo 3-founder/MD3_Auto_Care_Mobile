@@ -10,7 +10,15 @@ import 'package:share_plus/share_plus.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class InvoicePdf {
-  void printPdf() async {
+  void printPdf(
+    // header right
+    String yth,
+    String sales,
+    String tanggal,
+    String noInvoice,
+    String poNo,
+    String tanggalJatuhTempo,
+  ) async {
     final pdf = pw.Document();
 
     final widgetInvoice = pw.Container(

@@ -56,7 +56,7 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
       if (response.statusCode == 200) {
         dataPenawaran = json.decode(response.body)['data'];
         filteredList = dataPenawaran;
-        // print('Cek data Penawaran : $dataPenawaran');
+        print('Cek data Penawaran : $dataPenawaran');
       } else {
         print(response.body);
       }
@@ -511,8 +511,16 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
                                     } else {
                                       // to Data Transportation
                                       Get.to(
-                                        DataProduct(idPenawaran: item['id']),
+                                        DataProduct(
+                                          idPenawaran: item['id'],
+                                        ),
                                       );
+                                      // Get.to(
+                                      //   DataTransportationPage(
+                                      //     id_customer: item['id'],
+                                      //     isBack: 'true',
+                                      //   ),
+                                      // );
                                       search.text = '';
                                       getPenawaran();
                                     }

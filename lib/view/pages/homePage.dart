@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       ItemHome().createSignature(isMobile),
                       ItemHome().createQuotation(isMobile),
+                      ItemHome().createInvoice(isMobile),
                       ItemHome().history(isMobile),
                       ItemHome().profile(isMobile),
                     ],

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:md3_auto_care/provider/quotationProvider.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
+import 'package:md3_auto_care/view/pages/product/data_product.dart';
 import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class QuotationController extends GetxController {
@@ -27,7 +28,15 @@ class QuotationController extends GetxController {
           .then((response) {
         if (response.statusCode == 200) {
           SnackbarWidget().snackbarSuccess(response.body['message']);
-          // var getIdCus = response.body['data'];
+          var getIdPenawaran = response.body['data'];
+          Get.offUntil(
+            MaterialPageRoute(
+              builder: (context) => DataProduct(
+                idPenawaran: getIdPenawaran['id'],
+              ),
+            ),
+            (Route<dynamic> route) => route.isFirst,
+          );
           // Get.off(DataTransportationPage(
           //   id_customer: getIdCus['id'],
           //   isBack: 'false',

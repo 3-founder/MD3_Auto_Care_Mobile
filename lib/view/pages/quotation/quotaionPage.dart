@@ -135,10 +135,6 @@ class _QuotationPageState extends State<QuotationPage> {
                       maxLines: 1,
                       controller: noPenawaran,
                       textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(9),
-                      ],
                     ),
                   ),
 
@@ -334,8 +330,6 @@ class _QuotationPageState extends State<QuotationPage> {
                         if (connectivityResult == ConnectivityResult.none) {
                           print("NO INTERNET");
                         } else {
-                          // Get.to(DataTransportationPage(id_customer: 4));
-
                           if (valueTtd != null) {
                             QuotationController().postQuotation(
                               noPenawaran.text,
