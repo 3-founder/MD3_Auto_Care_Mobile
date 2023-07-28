@@ -133,7 +133,7 @@ class DataInvoiceWidget {
         ),
         Container(
           width: double.infinity,
-          color: const Color(0xFFF9F9F9),
+          color: const Color(0xFFF2F2F2),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Row(
@@ -163,7 +163,7 @@ class DataInvoiceWidget {
         ),
         Container(
           width: double.infinity,
-          color: const Color(0xFFF2F2F2),
+          color: const Color(0xFFF9F9F9),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Row(

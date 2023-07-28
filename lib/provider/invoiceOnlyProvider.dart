@@ -21,6 +21,7 @@ class InvoiceOnlyProvider extends GetConnect {
     String noRekening,
     String atasNamaRekening,
     int idTandaTangan,
+    String ketPembayaran,
   ) async {
     final body = json.encode({
       "no_invoice": noInvoice,
@@ -37,6 +38,7 @@ class InvoiceOnlyProvider extends GetConnect {
       "no_rekening": noRekening,
       "a_n_rekening": atasNamaRekening,
       "id_user_signature": idTandaTangan,
+      "ket_pembayaran": ketPembayaran,
     });
 
     return post(url, body, headers: {'Accept': 'application/json'});

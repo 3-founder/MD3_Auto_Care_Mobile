@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:md3_auto_care/pdf/invoicePdf.dart';
 import 'package:md3_auto_care/pdf/penawaranPdf.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
+import 'package:md3_auto_care/view/pages/product/add_product_invoiceOnly.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
 import 'package:md3_auto_care/widget/dataInvoiceWidget.dart';
 import 'package:md3_auto_care/widget/dataPenawaranWidget.dart';
@@ -137,22 +138,35 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
 
   // PopUp Quotation
   bool _isPopupVisibleQuotation = false;
-  void _quotationPopUp(
+  void _invoiceOnlyPopUp(
     int idInvoice,
-    String noPenawaran,
-    String halPenawaran,
-    String namaCustomer,
+    // header right From data invoice Only
+    String yth,
+    String sales,
     String tanggal,
-    String namaTtd,
-    String ttd,
+    String noInvoice,
+    String poNo,
+    String tanggalJatuhTempo,
+    String diskon,
+    String ongkosKirim,
+    String cashback,
+    // Metode Pembayaran From data invoice Only
+    String mPembayaran,
+    String? atasNamaBank,
+    String? noRekening,
+    String? namaBank,
+    String ttdDirektur,
+    String ketPembayaran,
     // Company
-    String logoCompany,
+    String logo,
     String namaCompany,
     String noHpCompany,
     String emailCompany,
-    String provinsi,
-    String kota,
-    String alamat,
+    String alamatCompany,
+    String kotaCompany,
+    String provinsiCompany,
+    // type generate
+    bool generate,
   ) {
     setState(() {
       _isPopupVisibleQuotation = !_isPopupVisibleQuotation;
@@ -230,16 +244,37 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                                 ),
                                 onPressed: () {
                                   InvoicePdf().printPdf(
-                                    dataInvoice['yth'],
-                                    dataInvoice['sales'],
-                                    dataInvoice['tanggal'],
-                                    dataInvoice['no_invoice'],
-                                    dataInvoice['po_no'],
-                                    // dataInvoice['signature_user']['nama_lengkap'],
-                                    dataInvoice['tanggal_jatuh_tempo'],
+                                    idInvoice,
+                                    // header right From data invoice Only
+                                    yth,
+                                    sales,
+                                    tanggal,
+                                    noInvoice,
+                                    poNo,
+                                    tanggalJatuhTempo,
+                                    diskon,
+                                    ongkosKirim,
+                                    cashback,
+                                    // Metode Pembayaran From data invoice Only
+                                    mPembayaran,
+                                    atasNamaBank,
+                                    noRekening,
+                                    namaBank,
+                                    ttdDirektur,
+                                    ketPembayaran,
+                                    // Company
+                                    logo,
+                                    namaCompany,
+                                    noHpCompany,
+                                    emailCompany,
+                                    alamatCompany,
+                                    kotaCompany,
+                                    provinsiCompany,
+                                    // type generate
+                                    true,
                                   );
                                 },
-                                label: const Text("Generate Quotation"),
+                                label: const Text("Generate Invoice"),
                                 icon: const Icon(Icons.picture_as_pdf),
                               ),
                             ),
@@ -250,23 +285,36 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                                   backgroundColor: const Color(0xFFED6C6C),
                                 ),
                                 onPressed: () {
-                                  // PenawaranPdf().printPdf(
-                                  //   idInvoice,
-                                  //   noPenawaran,
-                                  //   halPenawaran,
-                                  //   namaCustomer,
-                                  //   tanggal,
-                                  //   namaTtd,
-                                  //   ttd,
-                                  //   logoCompany,
-                                  //   namaCompany,
-                                  //   noHpCompany,
-                                  //   emailCompany,
-                                  //   provinsi,
-                                  //   kota,
-                                  //   alamat,
-                                  //   false,
-                                  // );
+                                  InvoicePdf().printPdf(
+                                    idInvoice,
+                                    // header right From data invoice Only
+                                    yth,
+                                    sales,
+                                    tanggal,
+                                    noInvoice,
+                                    poNo,
+                                    tanggalJatuhTempo,
+                                    diskon,
+                                    ongkosKirim,
+                                    cashback,
+                                    // Metode Pembayaran From data invoice Only
+                                    mPembayaran,
+                                    atasNamaBank,
+                                    noRekening,
+                                    namaBank,
+                                    ttdDirektur,
+                                    ketPembayaran,
+                                    // Company
+                                    logo,
+                                    namaCompany,
+                                    noHpCompany,
+                                    emailCompany,
+                                    alamatCompany,
+                                    kotaCompany,
+                                    provinsiCompany,
+                                    // type generate
+                                    false,
+                                  );
                                 },
                                 label: const Text("Share Quotation"),
                                 icon: const Icon(Icons.share),
@@ -375,9 +423,9 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                     if (connectivityResult == ConnectivityResult.none) {
                       print("NO INTERNET");
                     } else {
-                      Get.to(
-                        AddProductQuotation(idPenawaran: widget.idInvoice),
-                      );
+                      Get.to(AddProductInvoiceOnly(
+                        idProductInvoiceOnly: dataInvoice['id'].toString(),
+                      ));
                     }
                   },
                   child: const Text(
@@ -409,15 +457,62 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                           if (connectivityResult == ConnectivityResult.none) {
                             print("NO INTERNET");
                           } else {
-                            InvoicePdf().printPdf(
+                            _invoiceOnlyPopUp(
+                              dataInvoice['id'],
                               dataInvoice['yth'],
                               dataInvoice['sales'],
                               dataInvoice['tanggal'],
                               dataInvoice['no_invoice'],
                               '${dataInvoice['po_no'] == null ? "null" : dataInvoice['po_no']}',
-                              // dataInvoice['signature_user']['nama_lengkap'],
                               dataInvoice['tanggal_jatuh_tempo'],
+                              dataInvoice['diskon'] == null
+                                  ? "0"
+                                  : dataInvoice['diskon'],
+                              dataInvoice['ongkos_kirim'] == null
+                                  ? "0"
+                                  : dataInvoice['ongkos_kirim'],
+                              dataInvoice['cashback'] == null
+                                  ? "0"
+                                  : dataInvoice['cashback'],
+                              dataInvoice['metode_pembayaran'],
+                              dataInvoice['a_n_rekening'],
+                              dataInvoice['no_rekening'],
+                              dataInvoice['nama_bank'],
+                              dataInvoice['signature_user']['tanda_tangan'],
+                              dataInvoice['ket_pembayaran'],
+                              //Company
+                              company[0]['logo'],
+                              company[0]['nama_company'],
+                              company[0]['no_hp'],
+                              company[0]['email'],
+                              company[0]['alamat'],
+                              company[0]['kota'],
+                              company[0]['provinsi'],
+                              true,
                             );
+                            // InvoicePdf().printPdf(
+                            //   dataInvoice['id'],
+                            //   dataInvoice['yth'],
+                            //   dataInvoice['sales'],
+                            //   dataInvoice['tanggal'],
+                            //   dataInvoice['no_invoice'],
+                            //   '${dataInvoice['po_no'] == null ? "null" : dataInvoice['po_no']}',
+                            //   dataInvoice['tanggal_jatuh_tempo'],
+                            //   dataInvoice['metode_pembayaran'],
+                            //   dataInvoice['a_n_rekening'],
+                            //   dataInvoice['no_rekening'],
+                            //   dataInvoice['nama_bank'],
+                            //   dataInvoice['signature_user']['tanda_tangan'],
+                            //   //Company
+                            //   company[0]['logo'],
+                            //   company[0]['nama_company'],
+                            //   company[0]['no_hp'],
+                            //   company[0]['email'],
+                            //   company[0]['alamat'],
+                            //   company[0]['kota'],
+                            //   company[0]['provinsi'],
+                            //   true,
+                            // );
                             // _quotationPopUp(
                             //   dataInvoice['id'],
                             //   dataInvoice['no_penawaran'],
@@ -509,6 +604,7 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                           ListView.builder(
                         shrinkWrap: true,
                         itemCount: dataProductInvoice.length,
+                        reverse: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return IgnorePointer(
@@ -613,7 +709,7 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                                                         width: 185,
                                                         // color: Colors.amber,
                                                         child: Text(
-                                                          '${dataProductInvoice[index]['deskripsi_barang']}}'
+                                                          '${dataProductInvoice[index]['deskripsi_barang']}'
                                                               .toUpperCase(),
                                                           style:
                                                               const TextStyle(

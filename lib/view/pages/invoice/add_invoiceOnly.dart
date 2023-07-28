@@ -35,6 +35,7 @@ class _AddInvoiceOnlyState extends State<AddInvoiceOnly> {
   var namaBankC = TextEditingController(text: '');
   var noRekeningC = TextEditingController(text: '');
   var namaRekeningC = TextEditingController(text: '');
+  String? valueKetPembayaran;
 
   final currencyFormatter =
       NumberFormat.currency(locale: 'ID', symbol: '', decimalDigits: 0);
@@ -44,6 +45,11 @@ class _AddInvoiceOnlyState extends State<AddInvoiceOnly> {
   List pembayaranList = [
     'transfer',
     'cash',
+  ];
+
+  List ketPembayaranList = [
+    'lunas',
+    'belum lunas',
   ];
 
   int? valueTtd;
@@ -183,6 +189,15 @@ class _AddInvoiceOnlyState extends State<AddInvoiceOnly> {
                         width: double.infinity,
                         height: 50,
                         child: TextField(
+                          textCapitalization: TextCapitalization.characters,
+                          onChanged: (value) {
+                            yth.value = yth.value.copyWith(
+                              text: value.toUpperCase(),
+                              selection: TextSelection.fromPosition(
+                                TextPosition(offset: value.length),
+                              ),
+                            );
+                          },
                           style: const TextStyle(color: Color(0xFF616161)),
                           cursorColor: const Color(0xFF737373),
                           decoration: const InputDecoration(
@@ -865,6 +880,65 @@ class _AddInvoiceOnlyState extends State<AddInvoiceOnly> {
                           }).toList(),
                         ),
                       ),
+
+                      // keterangan pembayaran
+                      const SizedBox(height: 5),
+                      const Text(
+                        "Keterangan Pembayaran",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        height: 53,
+                        child: DropdownButtonFormField(
+                          decoration: const InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4)),
+                              borderSide: BorderSide(
+                                  width: 1, color: Color(0xFF515151)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4)),
+                              borderSide: BorderSide(
+                                  width: 1, color: Color(0xFFE4E4E4)),
+                            ),
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          value: valueKetPembayaran,
+                          hint: const Text(
+                            "Pilih Keterangan Pembayaran",
+                            style: TextStyle(
+                                color: Color(0xFF8F8F8F), fontSize: 12),
+                          ),
+                          onChanged: ((value) {
+                            if (mounted) {
+                              setState(() {
+                                valueKetPembayaran = value as String;
+                                print(valueKetPembayaran);
+                                namaBankC.text = '';
+                                noRekeningC.text = '';
+                                namaRekeningC.text = '';
+                              });
+                            }
+                          }),
+                          items: ketPembayaranList.map((item) {
+                            return DropdownMenuItem(
+                              child: Text(
+                                "$item".toUpperCase(),
+                                style: const TextStyle(
+                                    color: Color(0xFF8F8F8F), fontSize: 13),
+                              ),
+                              value: item,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
@@ -916,6 +990,7 @@ class _AddInvoiceOnlyState extends State<AddInvoiceOnly> {
                                   noRekeningC.text,
                                   namaRekeningC.text,
                                   valueTtd!,
+                                  "$valueKetPembayaran",
                                 );
                               }
                             }

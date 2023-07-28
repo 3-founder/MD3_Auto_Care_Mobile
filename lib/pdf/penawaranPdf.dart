@@ -34,7 +34,7 @@ class PenawaranPdf {
     bool generate,
   ) async {
     final pdf = pw.Document();
-    String originalDateInvoice = ConvertOriginalDate().dateFormat(tanggal);
+    String originalDatePenawaran = ConvertOriginalDate().dateFormat(tanggal);
     final currencyFormatter = NumberFormat.currency(locale: 'ID', symbol: '');
 
     //format phone Company
@@ -203,7 +203,7 @@ class PenawaranPdf {
               ),
               pw.SizedBox(height: 15),
               pw.Text(
-                "$kota, $originalDateInvoice",
+                "$kota, $originalDatePenawaran",
                 style: pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   fontSize: 11,

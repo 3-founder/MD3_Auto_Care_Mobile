@@ -1,25 +1,104 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:md3_auto_care/pdf/widget_table_invoice.dart';
+import 'package:md3_auto_care/utils/base_url.dart';
+import 'package:md3_auto_care/utils/convertOriginalDate.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:http/http.dart' as http;
 
 class InvoicePdf {
   void printPdf(
-    // header right
+    int idInvoice,
+    // header right From data invoice Only
     String yth,
     String sales,
     String tanggal,
     String noInvoice,
     String poNo,
     String tanggalJatuhTempo,
+    String diskon,
+    String ongkosKirim,
+    String cashback,
+    // Metode Pembayaran From data invoice Only
+    String mPembayaran,
+    String? atasNamaBank,
+    String? noRekening,
+    String? namaBank,
+    String ttdDirektur,
+    String ketPembayaran,
+    // Company
+    String logo,
+    String namaCompany,
+    String noHpCompany,
+    String emailCompany,
+    String alamatCompany,
+    String kotaCompany,
+    String provinsiCompany,
+    // type generate
+    bool generate,
   ) async {
     final pdf = pw.Document();
+    String formatDateInvoice = ConvertOriginalDate().dateFormatInvoice(tanggal);
+    String formatDateInvoiceTempo =
+        ConvertOriginalDate().dateFormatInvoice(tanggalJatuhTempo);
+
+    final currencyFormatter = NumberFormat.currency(locale: 'ID', symbol: '');
+
+    //format phone Company
+    String? formattedPhoneCompany;
+    if (noHpCompany.contains('[') && noHpCompany.contains(']')) {
+      formattedPhoneCompany =
+          noHpCompany.replaceRange(5, 5, ' ').replaceRange(9, 9, ' ');
+    } else {
+      formattedPhoneCompany = noHpCompany.replaceAllMapped(
+          RegExp(r".{4}"), (match) => "${match.group(0)} ");
+    }
+
+    // get ttd Image
+    // final url = '$urlWeb/public/storage/$exportedImage';
+    final urlTtd = '$urlWeb/storage/ttd/$ttdDirektur';
+    final response = await http.get(Uri.parse(urlTtd));
+    final bytes_ttd = response.bodyBytes;
+
+    // data table product invoice
+    int subTotalData = 0;
+    int grandTotal = 0;
+    int sisaTagihan = 0;
+
+    late Map<String, dynamic> dataProduct = {};
+    List<dynamic> dataProductInvoice = [];
+    String url = "$baseUrl/invoice-only-product/$idInvoice";
+
+    try {
+      http.Response response = await http
+          .get(Uri.parse(url), headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        dataProduct = json.decode(response.body)['data'];
+        dataProductInvoice = dataProduct['invoice_only'];
+        // print(dataProductInvoice);
+        // print(product);
+        // print(cekTrans);
+        for (var i = 0; i < dataProductInvoice.length; i++) {
+          subTotalData += int.parse(dataProductInvoice[i]['total']);
+        }
+        print("Sub Total = $subTotalData");
+        grandTotal = (subTotalData + int.parse(ongkosKirim)) -
+            (int.parse(diskon) + int.parse(cashback));
+        sisaTagihan = grandTotal;
+      } else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
 
     final widgetInvoice = pw.Container(
       child: pw.Column(
@@ -102,7 +181,7 @@ class InvoicePdf {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      "JELITA MOTOR",
+                      yth,
                       style: pw.TextStyle(
                         fontSize: 6,
                         color: PdfColors.black,
@@ -129,7 +208,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 8.8),
                     pw.Text(
-                      "Shinta",
+                      sales,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -137,7 +216,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 6),
                     pw.Text(
-                      "21/06/2023",
+                      formatDateInvoice,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -145,7 +224,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 3),
                     pw.Text(
-                      "01/VI/23/JM/MD3",
+                      noInvoice,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -153,7 +232,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 3),
                     pw.Text(
-                      "-",
+                      poNo == "null" ? "-" : poNo,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -161,7 +240,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 3),
                     pw.Text(
-                      "21/07/2023",
+                      formatDateInvoice,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -224,7 +303,7 @@ class InvoicePdf {
                             ),
                           ),
                           pw.Text(
-                            ": 0813-1095-5281",
+                            ": $formattedPhoneCompany",
                             style: const pw.TextStyle(
                               fontSize: 7,
                               color: PdfColors.black,
@@ -239,7 +318,7 @@ class InvoicePdf {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        "PT MAKMUR TERUS ABADI",
+                        namaCompany,
                         style: pw.TextStyle(
                           fontSize: 12,
                           color: PdfColors.black,
@@ -256,7 +335,7 @@ class InvoicePdf {
                       ),
                       pw.SizedBox(height: 3),
                       pw.Text(
-                        "Email : mtabadi22@gmail.com",
+                        "Email : $emailCompany",
                         style: const pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -268,11 +347,13 @@ class InvoicePdf {
               ),
               pw.SizedBox(height: 3),
               pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Container(
-                    width: 30,
+                    width: 34,
                     child: pw.Text(
-                      "Address",
+                      "Address  : ",
                       style: const pw.TextStyle(
                         fontSize: 7,
                         color: PdfColors.black,
@@ -280,7 +361,7 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    ": Ruko Festive Garden Blok AA 16 No 88, Grand Wisata",
+                    "$alamatCompany",
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -288,14 +369,14 @@ class InvoicePdf {
                   ),
                 ],
               ),
-              pw.SizedBox(height: 3),
+              pw.SizedBox(height: 2),
               pw.Row(
                 children: [
                   pw.Container(
                     width: 34,
                   ),
                   pw.Text(
-                    "Bekasi , Jawa Barat",
+                    "$kotaCompany , $provinsiCompany",
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -311,7 +392,7 @@ class InvoicePdf {
     );
 
     final dataTable = pw.ListView.builder(
-      itemCount: 4,
+      itemCount: dataProductInvoice.length,
       itemBuilder: (context, index) {
         return pw.Table(
           // border: pw.TableBorder.all(),
@@ -344,7 +425,7 @@ class InvoicePdf {
                     padding: const pw.EdgeInsets.all(2),
                     child: pw.Center(
                       child: pw.Text(
-                        "MD3 CARBURETOR CLEANER",
+                        dataProductInvoice[index]['deskripsi_barang'],
                         style: const pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -358,7 +439,7 @@ class InvoicePdf {
                     padding: const pw.EdgeInsets.all(2),
                     child: pw.Center(
                       child: pw.Text(
-                        "12",
+                        dataProductInvoice[index]['qty'],
                         style: const pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -382,7 +463,7 @@ class InvoicePdf {
                           ),
                         ),
                         pw.Text(
-                          "25.000",
+                          "${currencyFormatter.format(double.parse(dataProductInvoice[index]['harga']))}",
                           style: const pw.TextStyle(
                             fontSize: 7,
                             color: PdfColors.black,
@@ -408,7 +489,7 @@ class InvoicePdf {
                           ),
                         ),
                         pw.Text(
-                          "45.000",
+                          "${currencyFormatter.format(double.parse(dataProductInvoice[index]['total']))}",
                           style: const pw.TextStyle(
                             fontSize: 7,
                             color: PdfColors.black,
@@ -498,7 +579,7 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "1.450.000",
+                    "${currencyFormatter.format(double.parse(subTotalData.toString()))}",
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -518,7 +599,9 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "-",
+                    diskon == "0"
+                        ? "-"
+                        : currencyFormatter.format(double.parse(diskon)),
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -538,7 +621,9 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "-",
+                    ongkosKirim == "0"
+                        ? "-"
+                        : currencyFormatter.format(double.parse(ongkosKirim)),
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -558,7 +643,9 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "-",
+                    cashback == "0"
+                        ? "-"
+                        : currencyFormatter.format(double.parse(cashback)),
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -578,7 +665,8 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "1.450.000",
+                    currencyFormatter
+                        .format(double.parse(grandTotal.toString())),
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -598,7 +686,10 @@ class InvoicePdf {
                     ),
                   ),
                   pw.Text(
-                    "1.450.000",
+                    ketPembayaran == "lunas"
+                        ? "-"
+                        : currencyFormatter
+                            .format(double.parse(sisaTagihan.toString())),
                     style: const pw.TextStyle(
                       fontSize: 7,
                       color: PdfColors.black,
@@ -630,80 +721,90 @@ class InvoicePdf {
                 ),
               ),
               pw.SizedBox(height: 3),
-              pw.Text(
-                "Transfer Ke : ",
-                style: const pw.TextStyle(
-                  fontSize: 7,
-                  color: PdfColors.black,
-                ),
-              ),
+              mPembayaran == "cash"
+                  ? pw.Text(
+                      "Cash",
+                      style: const pw.TextStyle(
+                        fontSize: 7,
+                        color: PdfColors.black,
+                      ),
+                    )
+                  : pw.Text(
+                      "Transfer Ke : ",
+                      style: const pw.TextStyle(
+                        fontSize: 7,
+                        color: PdfColors.black,
+                      ),
+                    ),
               pw.SizedBox(height: 3),
-              pw.Row(
-                children: [
-                  pw.Container(
-                    width: 70,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+              mPembayaran == "cash"
+                  ? pw.Container(width: 100, height: 20)
+                  : pw.Row(
                       children: [
-                        pw.Text(
-                          "Atas Nama ",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
+                        pw.Container(
+                          width: 70,
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.end,
+                            children: [
+                              pw.Text(
+                                "Atas Nama ",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                              pw.SizedBox(height: 2),
+                              pw.Text(
+                                "No Rek ",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                              pw.SizedBox(height: 2),
+                              pw.Text(
+                                "Bank ",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        pw.SizedBox(height: 2),
-                        pw.Text(
-                          "No Rek ",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
+                        pw.Container(
+                          width: 100,
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                ": $atasNamaBank",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                              pw.SizedBox(height: 2),
+                              pw.Text(
+                                ": $noRekening",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                              pw.SizedBox(height: 2),
+                              pw.Text(
+                                ": $namaBank",
+                                style: const pw.TextStyle(
+                                  fontSize: 7,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        pw.SizedBox(height: 2),
-                        pw.Text(
-                          "Bank ",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
-                          ),
-                        ),
+                        )
                       ],
                     ),
-                  ),
-                  pw.Container(
-                    width: 100,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          ": M Taufan Athallah",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
-                          ),
-                        ),
-                        pw.SizedBox(height: 2),
-                        pw.Text(
-                          ": 7285084077",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
-                          ),
-                        ),
-                        pw.SizedBox(height: 2),
-                        pw.Text(
-                          ": BCA",
-                          style: const pw.TextStyle(
-                            fontSize: 7,
-                            color: PdfColors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
               pw.SizedBox(height: 10),
               pw.Text(
                 "Hormat Kami,",
@@ -718,7 +819,9 @@ class InvoicePdf {
                 child: pw.Container(
                   width: 40,
                   height: 25,
-                  color: PdfColors.grey,
+                  child: pw.Image(
+                    pw.MemoryImage(bytes_ttd),
+                  ),
                 ),
               ),
               pw.SizedBox(height: 3),
@@ -744,33 +847,48 @@ class InvoicePdf {
       ),
     );
 
+    final imgBelumBayar = pw.MemoryImage(
+      (await rootBundle.load('assets/image/bg_belum_lunas.png'))
+          .buffer
+          .asUint8List(),
+    );
+
     pdf.addPage(
       pw.MultiPage(
-        pageFormat: PdfPageFormat.a5.landscape,
-        margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-        // header: (context) {
-        //   return header;
-        // },
-        build: (pw.Context context) => [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              header,
-              pw.SizedBox(height: 7),
-              WidgetTableInvoice().lineTable,
-              WidgetTableInvoice().headerTable,
-              WidgetTableInvoice().lineTable,
-              dataTable,
-              WidgetTableInvoice().lineTable,
-              pw.SizedBox(height: 2),
-              metodePembayaran,
-            ],
+          pageFormat: PdfPageFormat.a5.landscape,
+          margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+          // header: (context) {
+          //   return header;
+          // },
+          build: (pw.Context context) {
+            return [
+              pw.Container(
+                width: double.infinity,
+                decoration: ketPembayaran == "lunas"
+                    ? null
+                    : pw.BoxDecoration(
+                        image: pw.DecorationImage(image: imgBelumBayar)),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    header,
+                    pw.SizedBox(height: 7),
+                    WidgetTableInvoice().lineTable,
+                    WidgetTableInvoice().headerTable,
+                    WidgetTableInvoice().lineTable,
+                    dataTable,
+                    WidgetTableInvoice().lineTable,
+                    pw.SizedBox(height: 2),
+                    metodePembayaran,
+                  ],
+                ),
+              )
+            ];
+          }
+          // footer: (context) {
+          //   return address;
+          // },
           ),
-        ],
-        // footer: (context) {
-        //   return address;
-        // },
-      ),
     );
 
     // Save the PDF to a file
@@ -778,7 +896,14 @@ class InvoicePdf {
     final filePath1 = '${output.path}/penawaran.pdf';
     final file = File(filePath1);
     await file.writeAsBytes(await pdf.save());
-    await OpenFile.open(file.path);
+    // await OpenFile.open(file.path);
+
+    if (generate == false) {
+      String pdfFilePath = await filePath1;
+      sharePDF(pdfFilePath);
+    } else {
+      await OpenFile.open(file.path);
+    }
   }
 
   void sharePDF(String filePath) {
