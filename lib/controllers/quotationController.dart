@@ -53,70 +53,45 @@ class QuotationController extends GetxController {
     }
   }
 
-  // void updateQuotation(
-  //   int idCustomer,
-  //   String kutipan_sewa,
-  //   String nama_cus,
-  //   String email,
-  //   String nama_perusahaan,
-  //   String kota,
-  //   String detail_alamat,
-  //   String pos,
-  //   String tanggal,
-  //   String no_quotation,
-  //   String no_hp,
-  //   String komentar,
-  //   String total_harga,
-  //   int id_user_ttd,
-  // ) {
-  //   try {
-  //     QuotationProvider()
-  //         .updateQuotation(
-  //       idCustomer,
-  //       kutipan_sewa,
-  //       nama_cus,
-  //       email,
-  //       nama_perusahaan,
-  //       kota,
-  //       detail_alamat,
-  //       pos,
-  //       tanggal,
-  //       no_quotation,
-  //       no_hp,
-  //       komentar,
-  //       total_harga,
-  //       id_user_ttd,
-  //     )
-  //         .then((response) {
-  //       if (response.statusCode == 200) {
-  //         SnackbarWidget().snackbarSuccess("Berhasil Merubah Cutomer");
-  //         var getIdCus = response.body['data'];
-  //         Get.offUntil(
-  //           MaterialPageRoute(
-  //             builder: (context) => DataTransportationPage(
-  //               id_customer: idCustomer,
-  //               isBack: 'false',
-  //             ),
-  //           ),
-  //           (Route<dynamic> route) => route.isFirst,
-  //         );
-  //         // Get.off(
-  //         //   DataTransportationPage(
-  //         //     id_customer: idCustomer,
-  //         //     isBack: 'false',
-  //         //   ),
-  //         // );
-  //       } else {
-  //         SnackbarWidget().snackbarError(response.body['message']);
-  //         print(response.body);
-  //       }
-  //     });
-  //   } catch (e) {
-  //     // SnackbarWidget().snackbarError(
-  //     //     "Server Ada kendala atau mati, silahkan hubungi pihak pengembang");
-  //     print(e);
-  //   }
-  // }
+  void updateQuotation(
+    int idPenawaran,
+    String noPenawaran,
+    String halPenawaran,
+    String namaCustomer,
+    String tanggal,
+    int idUserSignature,
+  ) {
+    try {
+      QuotationProvider()
+          .updateQuotation(
+        idPenawaran,
+        noPenawaran,
+        halPenawaran,
+        namaCustomer,
+        tanggal,
+        idUserSignature,
+      )
+          .then((response) {
+        if (response.statusCode == 200) {
+          SnackbarWidget().snackbarSuccess(response.body['message']);
+          // var getIdPenawaran = response.body['data'];
+          Get.offUntil(
+            MaterialPageRoute(
+              builder: (context) => DataProduct(
+                idPenawaran: idPenawaran,
+              ),
+            ),
+            (Route<dynamic> route) => route.isFirst,
+          );
+        } else {
+          SnackbarWidget().snackbarDanger(response.body['message']);
+          print(response.body);
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<Map<String, dynamic>?> getProductPenawaran(int idPenawaran) async {
     String url = "$baseUrl/product-penawaran/$idPenawaran";

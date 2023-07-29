@@ -324,12 +324,6 @@ class _HistoryPenawaranState extends State<HistoryPenawaran> {
           "History Penawaran",
           style: TextStyle(fontSize: 18),
         ),
-        // leading: IconButton(
-        //   onPressed: () {
-        //     Get.offAll(const MenuHistory());
-        //   },
-        //   icon: const Icon(Icons.arrow_back),
-        // ),
         foregroundColor: const Color(0xFF686868),
         backgroundColor: Colors.white,
         centerTitle: false,

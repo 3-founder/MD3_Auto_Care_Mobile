@@ -9,7 +9,9 @@ import 'package:intl/intl.dart';
 import 'package:md3_auto_care/pdf/penawaranPdf.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
+import 'package:md3_auto_care/view/pages/quotation/quotaionPage.dart';
 import 'package:md3_auto_care/widget/dataPenawaranWidget.dart';
+import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class DataProduct extends StatefulWidget {
   var idPenawaran;
@@ -62,7 +64,7 @@ class _DataProductState extends State<DataProduct> {
     }
   }
 
-  // Get Data Transportation
+  // Get Data product Penawaran
   int subTotalRp = 0;
   var isLoading2 = false;
   late Map<String, dynamic> dataProduct = {};
@@ -87,12 +89,6 @@ class _DataProductState extends State<DataProduct> {
         productMain = dataProductMain['main'];
         productAdditional = dataProductMain['additional'];
         print(productAdditional);
-        // print(product);
-        // print(cekTrans);
-        // for (var i = 0; i < cekTrans.length; i++) {
-        //   subTotalRp += int.parse(cekTrans[i]['harga']);
-        // }
-        // print("Sub Total = $subTotalRp");
       } else {
         print(response.body);
       }
@@ -133,6 +129,35 @@ class _DataProductState extends State<DataProduct> {
     if (mounted) {
       setState(() {
         isLoading2 = false;
+      });
+    }
+  }
+
+  // Delete Product Penawaran
+  bool isLoadingDelete = false;
+  void deleteTransportation(int id) async {
+    if (mounted) {
+      setState(() {
+        isLoadingDelete = true;
+      });
+    }
+    String url = "$baseUrl/delete-product-penawaran/$id";
+
+    try {
+      http.Response response = await http
+          .delete(Uri.parse(url), headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        var deleteTrans = json.decode(response.body);
+        SnackbarWidget().snackbarSuccess(deleteTrans['message']);
+      } else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
+    if (mounted) {
+      setState(() {
+        isLoadingDelete = false;
       });
     }
   }
@@ -305,52 +330,41 @@ class _DataProductState extends State<DataProduct> {
           "Data Penawaran",
           style: TextStyle(fontSize: 18),
         ),
-        // actions: [
-        //   invoce.isNotEmpty
-        //       ? Container()
-        //       : InkWell(
-        //           onTap: () {
-        //             Get.to(
-        //               EditQuotationPage(
-        //                 noQuotation: '${dataQuotation['no_quotation']}',
-        //                 kutipanSewa: '${dataQuotation['kutipan_sewa']}',
-        //                 namaCustomer: '${dataQuotation['nama_customer']}',
-        //                 email: '${dataQuotation['email']}',
-        //                 namaCompanyCustomer:
-        //                     '${dataQuotation['nama_perusahaan']}',
-        //                 kotaCustomer: '${dataQuotation['kota']}',
-        //                 alamatCustomer: '${dataQuotation['nama_jalan']}',
-        //                 kodePos: '${dataQuotation['kode_pos']}',
-        //                 tanggal: '${dataQuotation['tanggal']}',
-        //                 noHp: '${dataQuotation['no_hp']}',
-        //                 komentar: '${dataQuotation['komentar']}',
-        //                 idUserTtd: int.parse('${dataQuotation['id_user']}'),
-        //                 idCustomer: int.parse('${dataQuotation['id']}'),
-        //               ),
-        //             );
-        //           },
-        //           child: Padding(
-        //             padding: const EdgeInsets.all(8.0),
-        //             child: Container(
-        //               width: 70,
-        //               decoration: BoxDecoration(
-        //                   color: const Color(0xFF5FC4F0),
-        //                   borderRadius: BorderRadius.circular(8)),
-        //               child: const Center(
-        //                 child: Text(
-        //                   "Edit\nQuotation",
-        //                   style: TextStyle(
-        //                     color: Colors.white,
-        //                     fontSize: 12,
-        //                     fontWeight: FontWeight.w500,
-        //                   ),
-        //                   textAlign: TextAlign.center,
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //         )
-        // ],
+        actions: [
+          //   invoce.isNotEmpty
+          //       ? Container()
+          //       :
+          InkWell(
+            onTap: () {
+              Get.to(
+                QuotationPage(
+                  edit: true,
+                  idPenawaran: dataPenawaran['id'],
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 70,
+                decoration: BoxDecoration(
+                    color: const Color(0xFF5FC4F0),
+                    borderRadius: BorderRadius.circular(8)),
+                child: const Center(
+                  child: Text(
+                    "Edit Penawaran",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
         foregroundColor: const Color(0xFF686868),
         backgroundColor: Colors.white,
         centerTitle: false,
@@ -386,7 +400,13 @@ class _DataProductState extends State<DataProduct> {
                       print("NO INTERNET");
                     } else {
                       Get.to(
-                        AddProductQuotation(idPenawaran: widget.idPenawaran),
+                        AddProductQuotation(
+                          idPenawaran: widget.idPenawaran,
+                          edit: false,
+                          typeProduct: "null",
+                          indexProduct: 0,
+                          idProduct: 0,
+                        ),
                       );
                     }
                   },
@@ -497,64 +517,58 @@ class _DataProductState extends State<DataProduct> {
                         );
                       },
                     ),
+                    productMain.isEmpty && productAdditional.isEmpty
+                        ? const Padding(
+                            padding: EdgeInsets.only(top: 100),
+                            child: Center(
+                              child: Text(
+                                "Data Produk Penawaran\nMasih Kosong Silahkan\nTambah Produk.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
                     const SizedBox(height: 10),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: Text(
-                        "Main Product : ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
+                    productMain.isEmpty
+                        ? Container()
+                        : const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 25),
+                            child: Text(
+                              "Main Product : ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child:
-                          // child: cekTrans.isEmpty
-                          //     ? Column(
-                          //         children: const [
-                          //           SizedBox(height: 200),
-                          //           Text("Transportation Masih Kosong!"),
-                          //           Text(
-                          //             "Silahkan Tambahkan Transportation\nTerlebih dahulu.",
-                          //             textAlign: TextAlign.center,
-                          //           ),
-                          //         ],
-                          //       )
-                          //     : isLoadingDelete
-                          //         ? Center(
-                          //             child: Container(
-                          //               width: 60,
-                          //               height: 60,
-                          //               child: Lottie.asset('assets/lottie/loading.json'),
-                          //             ),
-                          //           )
-                          //         :
-                          ListView.builder(
+                      child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: productMain.length,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return IgnorePointer(
-                            ignoring:
-                                // invoce.isNotEmpty ? true : false,
-                                true,
+                            ignoring: productMain.isEmpty ? true : false,
                             child: Dismissible(
                               movementDuration: Duration.zero,
-                              // key: Key(cekTrans[index]['id'].toString()),
-                              key: Key("1"),
+                              key: Key(productMain[index]['id'].toString()),
+                              // key: Key("1"),
                               direction: DismissDirection.endToStart,
                               confirmDismiss: (direction) async {
                                 return await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('Hapus Transportasi'),
+                                      title:
+                                          const Text('Hapus Produk Penawaran'),
                                       content: Text(
-                                          // 'Apakah Anda ingin menghapus ${cekTrans[index]['tipe_mobil']}?'),
-                                          'Apakah Anda ingin menghapus tipe?'),
+                                          'Apakah Anda ingin menghapus ${productMain[index]['produk_item']} | ${productMain[index]['tipe_item']}?'),
                                       actions: [
                                         TextButton(
                                           child: const Text('Cancel'),
@@ -575,16 +589,15 @@ class _DataProductState extends State<DataProduct> {
                                   },
                                 );
                               },
-                              // onDismissed: invoce.isNotEmpty
-                              //     ? null
-                              //     : (direction) {
-                              //         deleteTransportation(
-                              //             cekTrans[index]['id']);
-                              //         setState(() {
-                              //           cekTrans.removeAt(index);
-                              //         });
-                              //       },
-                              onDismissed: null,
+                              onDismissed: (direction) {
+                                deleteTransportation(
+                                  productMain[index]['id'],
+                                );
+                                setState(() {
+                                  productMain.removeAt(index);
+                                });
+                                getProductPenawaran(widget.idPenawaran);
+                              },
                               background: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.red,
@@ -665,26 +678,21 @@ class _DataProductState extends State<DataProduct> {
                                                                 0, // Remove elevation
                                                           ),
                                                           onPressed: () {
-                                                            // Get.to(
-                                                            //   EditTransportation(
-                                                            //     idTransportation:
-                                                            //         int.parse('${cekTrans[index]['id']}'),
-                                                            //     id_customer:
-                                                            //         int.parse('${dataQuotation['id']}'),
-                                                            //     tipeKendaraan:
-                                                            //         '${cekTrans[index]['tipe_mobil']}',
-                                                            //     lamaPenggunaan:
-                                                            //         '${cekTrans[index]['lama_penggunaan']}',
-                                                            //     jmlUnit:
-                                                            //         '${cekTrans[index]['jumlah']}',
-                                                            //     tanggalPenggunaan:
-                                                            //         '${cekTrans[index]['tanggal_penggunaan']}',
-                                                            //     harga:
-                                                            //         '${cekTrans[index]['harga']}',
-                                                            //     tujuanKendaraan:
-                                                            //         '${cekTrans[index]['tujuan']}',
-                                                            //   ),
-                                                            // );
+                                                            Get.to(
+                                                              AddProductQuotation(
+                                                                idPenawaran: widget
+                                                                    .idPenawaran,
+                                                                edit: true,
+                                                                typeProduct:
+                                                                    "main",
+                                                                indexProduct:
+                                                                    index,
+                                                                idProduct:
+                                                                    productMain[
+                                                                            index]
+                                                                        ['id'],
+                                                              ),
+                                                            );
                                                           },
                                                           child: Text(
                                                             'Edit',
@@ -801,17 +809,19 @@ class _DataProductState extends State<DataProduct> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: Text(
-                        "Additional Product : ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
+                    productAdditional.isEmpty
+                        ? Container()
+                        : const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 25),
+                            child: Text(
+                              "Additional Product : ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25),
                       child:
@@ -841,23 +851,21 @@ class _DataProductState extends State<DataProduct> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return IgnorePointer(
-                            ignoring:
-                                // invoce.isNotEmpty ? true : false,
-                                true,
+                            ignoring: false,
                             child: Dismissible(
                               movementDuration: Duration.zero,
-                              // key: Key(cekTrans[index]['id'].toString()),
-                              key: Key("1"),
+                              key: Key(
+                                  productAdditional[index]['id'].toString()),
                               direction: DismissDirection.endToStart,
                               confirmDismiss: (direction) async {
                                 return await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('Hapus Transportasi'),
+                                      title:
+                                          const Text('Hapus Produk Penawaran'),
                                       content: Text(
-                                          // 'Apakah Anda ingin menghapus ${cekTrans[index]['tipe_mobil']}?'),
-                                          'Apakah Anda ingin menghapus tipe?'),
+                                          'Apakah Anda ingin Menghapus ${productAdditional[index]['produk_item']} | ${productAdditional[index]['tipe_item']} ?'),
                                       actions: [
                                         TextButton(
                                           child: const Text('Cancel'),
@@ -878,16 +886,14 @@ class _DataProductState extends State<DataProduct> {
                                   },
                                 );
                               },
-                              // onDismissed: invoce.isNotEmpty
-                              //     ? null
-                              //     : (direction) {
-                              //         deleteTransportation(
-                              //             cekTrans[index]['id']);
-                              //         setState(() {
-                              //           cekTrans.removeAt(index);
-                              //         });
-                              //       },
-                              onDismissed: null,
+                              onDismissed: (direction) {
+                                deleteTransportation(
+                                    productAdditional[index]['id']);
+                                setState(() {
+                                  productAdditional.removeAt(index);
+                                });
+                                getProductPenawaran(widget.idPenawaran);
+                              },
                               background: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.red,
@@ -968,26 +974,21 @@ class _DataProductState extends State<DataProduct> {
                                                                 0, // Remove elevation
                                                           ),
                                                           onPressed: () {
-                                                            // Get.to(
-                                                            //   EditTransportation(
-                                                            //     idTransportation:
-                                                            //         int.parse('${cekTrans[index]['id']}'),
-                                                            //     id_customer:
-                                                            //         int.parse('${dataQuotation['id']}'),
-                                                            //     tipeKendaraan:
-                                                            //         '${cekTrans[index]['tipe_mobil']}',
-                                                            //     lamaPenggunaan:
-                                                            //         '${cekTrans[index]['lama_penggunaan']}',
-                                                            //     jmlUnit:
-                                                            //         '${cekTrans[index]['jumlah']}',
-                                                            //     tanggalPenggunaan:
-                                                            //         '${cekTrans[index]['tanggal_penggunaan']}',
-                                                            //     harga:
-                                                            //         '${cekTrans[index]['harga']}',
-                                                            //     tujuanKendaraan:
-                                                            //         '${cekTrans[index]['tujuan']}',
-                                                            //   ),
-                                                            // );
+                                                            Get.to(
+                                                              AddProductQuotation(
+                                                                idPenawaran: widget
+                                                                    .idPenawaran,
+                                                                edit: true,
+                                                                typeProduct:
+                                                                    "additional",
+                                                                indexProduct:
+                                                                    index,
+                                                                idProduct:
+                                                                    productAdditional[
+                                                                            index]
+                                                                        ['id'],
+                                                              ),
+                                                            );
                                                           },
                                                           child: Text(
                                                             'Edit',

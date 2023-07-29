@@ -59,7 +59,10 @@ class ItemHome {
   Widget createQuotation(bool isMobile) {
     return InkWell(
       onTap: () async {
-        Get.to(QuotationPage());
+        Get.to(QuotationPage(
+          edit: false,
+          idPenawaran: 0,
+        ));
       },
       child: Container(
         decoration: const BoxDecoration(
@@ -107,7 +110,10 @@ class ItemHome {
   Widget createInvoice(bool isMobile) {
     return InkWell(
       onTap: () async {
-        Get.to(AddInvoiceOnly());
+        Get.to(AddInvoiceOnly(
+          edit: false,
+          idInvoice: 0,
+        ));
       },
       child: Container(
         decoration: const BoxDecoration(

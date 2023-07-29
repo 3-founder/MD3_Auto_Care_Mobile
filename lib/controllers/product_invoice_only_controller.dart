@@ -44,4 +44,43 @@ class ProductInvoiceOnlyController {
       print(e);
     }
   }
+
+  void updateProductInvoiceOnly(
+    int idProduct,
+    String deskripsiBarang,
+    String qty,
+    String harga,
+    String total,
+    String idInvoiceOnly,
+  ) {
+    try {
+      ProductInvoiceOnlyProvider()
+          .updateProductInvoiceOnly(
+        idProduct,
+        deskripsiBarang,
+        qty,
+        harga,
+        total,
+        idInvoiceOnly,
+      )
+          .then((response) {
+        if (response.statusCode == 200) {
+          SnackbarWidget().snackbarSuccess(response.body['message']);
+          Get.offUntil(
+            MaterialPageRoute(
+              builder: (context) => DataInvoiceOnly(
+                idInvoice: int.parse(idInvoiceOnly),
+              ),
+            ),
+            (Route<dynamic> route) => route.isFirst,
+          );
+        } else {
+          SnackbarWidget().snackbarDanger(response.body['message']);
+          print(response.body);
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 }

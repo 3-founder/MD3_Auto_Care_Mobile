@@ -9,10 +9,12 @@ import 'package:intl/intl.dart';
 import 'package:md3_auto_care/pdf/invoicePdf.dart';
 import 'package:md3_auto_care/pdf/penawaranPdf.dart';
 import 'package:md3_auto_care/utils/base_url.dart';
+import 'package:md3_auto_care/view/pages/invoice/add_invoiceOnly.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_invoiceOnly.dart';
 import 'package:md3_auto_care/view/pages/product/add_product_quotation.dart';
 import 'package:md3_auto_care/widget/dataInvoiceWidget.dart';
 import 'package:md3_auto_care/widget/dataPenawaranWidget.dart';
+import 'package:md3_auto_care/widget/snackbarWidget.dart';
 
 class DataInvoiceOnly extends StatefulWidget {
   var idInvoice;
@@ -28,16 +30,16 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
   @override
   void initState() {
     super.initState();
-    getPenawaran(widget.idInvoice);
-    getProductPenawaran(widget.idInvoice);
+    getInvoice(widget.idInvoice);
+    getProductInvoice(widget.idInvoice);
     getCompany();
   }
 
-  // Get data penawaran
+  // Get data Invoice
   var isLoading = false;
   late Map<String, dynamic> dataInvoice;
   List<dynamic> invoce = [];
-  void getPenawaran(int idInvoice) async {
+  void getInvoice(int idInvoice) async {
     if (mounted) {
       setState(() {
         isLoading = true;
@@ -70,7 +72,7 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
   var isLoading2 = false;
   late Map<String, dynamic> dataProduct = {};
   List<dynamic> dataProductInvoice = [];
-  void getProductPenawaran(int idInvoice) async {
+  void getProductInvoice(int idInvoice) async {
     if (mounted) {
       setState(() {
         isLoading2 = true;
@@ -86,12 +88,6 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
         dataProduct = json.decode(response.body)['data'];
         dataProductInvoice = dataProduct['invoice_only'];
         print(dataProductInvoice);
-        // print(product);
-        // print(cekTrans);
-        // for (var i = 0; i < cekTrans.length; i++) {
-        //   subTotalRp += int.parse(cekTrans[i]['harga']);
-        // }
-        // print("Sub Total = $subTotalRp");
       } else {
         print(response.body);
       }
@@ -132,6 +128,35 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
     if (mounted) {
       setState(() {
         isLoading2 = false;
+      });
+    }
+  }
+
+  // Delete Product Penawaran
+  bool isLoadingDelete = false;
+  void deleteProductInvoice(int id) async {
+    if (mounted) {
+      setState(() {
+        isLoadingDelete = true;
+      });
+    }
+    String url = "$baseUrl/delete-product-invoice/$id";
+
+    try {
+      http.Response response = await http
+          .delete(Uri.parse(url), headers: {'Accept': 'application/json'});
+      if (response.statusCode == 200) {
+        var deleteProduct = json.decode(response.body);
+        SnackbarWidget().snackbarSuccess(deleteProduct['message']);
+      } else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
+    if (mounted) {
+      setState(() {
+        isLoadingDelete = false;
       });
     }
   }
@@ -343,52 +368,39 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
           "Data Invoice",
           style: TextStyle(fontSize: 18),
         ),
-        // actions: [
-        //   invoce.isNotEmpty
-        //       ? Container()
-        //       : InkWell(
-        //           onTap: () {
-        //             Get.to(
-        //               EditQuotationPage(
-        //                 noQuotation: '${dataQuotation['no_quotation']}',
-        //                 kutipanSewa: '${dataQuotation['kutipan_sewa']}',
-        //                 namaCustomer: '${dataQuotation['nama_customer']}',
-        //                 email: '${dataQuotation['email']}',
-        //                 namaCompanyCustomer:
-        //                     '${dataQuotation['nama_perusahaan']}',
-        //                 kotaCustomer: '${dataQuotation['kota']}',
-        //                 alamatCustomer: '${dataQuotation['nama_jalan']}',
-        //                 kodePos: '${dataQuotation['kode_pos']}',
-        //                 tanggal: '${dataQuotation['tanggal']}',
-        //                 noHp: '${dataQuotation['no_hp']}',
-        //                 komentar: '${dataQuotation['komentar']}',
-        //                 idUserTtd: int.parse('${dataQuotation['id_user']}'),
-        //                 idCustomer: int.parse('${dataQuotation['id']}'),
-        //               ),
-        //             );
-        //           },
-        //           child: Padding(
-        //             padding: const EdgeInsets.all(8.0),
-        //             child: Container(
-        //               width: 70,
-        //               decoration: BoxDecoration(
-        //                   color: const Color(0xFF5FC4F0),
-        //                   borderRadius: BorderRadius.circular(8)),
-        //               child: const Center(
-        //                 child: Text(
-        //                   "Edit\nQuotation",
-        //                   style: TextStyle(
-        //                     color: Colors.white,
-        //                     fontSize: 12,
-        //                     fontWeight: FontWeight.w500,
-        //                   ),
-        //                   textAlign: TextAlign.center,
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //         )
-        // ],
+        actions: [
+          invoce.isNotEmpty
+              ? Container()
+              : InkWell(
+                  onTap: () {
+                    Get.to(AddInvoiceOnly(
+                      edit: true,
+                      idInvoice: dataInvoice['id'],
+                    ));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: 70,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5FC4F0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Edit\nInvoice",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+        ],
         foregroundColor: const Color(0xFF686868),
         backgroundColor: Colors.white,
         centerTitle: false,
@@ -424,7 +436,9 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                       print("NO INTERNET");
                     } else {
                       Get.to(AddProductInvoiceOnly(
-                        idProductInvoiceOnly: dataInvoice['id'].toString(),
+                        idInvoiceOnly: dataInvoice['id'].toString(),
+                        edit: false,
+                        indexProduct: 0,
                       ));
                     }
                   },
@@ -490,45 +504,6 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                               company[0]['provinsi'],
                               true,
                             );
-                            // InvoicePdf().printPdf(
-                            //   dataInvoice['id'],
-                            //   dataInvoice['yth'],
-                            //   dataInvoice['sales'],
-                            //   dataInvoice['tanggal'],
-                            //   dataInvoice['no_invoice'],
-                            //   '${dataInvoice['po_no'] == null ? "null" : dataInvoice['po_no']}',
-                            //   dataInvoice['tanggal_jatuh_tempo'],
-                            //   dataInvoice['metode_pembayaran'],
-                            //   dataInvoice['a_n_rekening'],
-                            //   dataInvoice['no_rekening'],
-                            //   dataInvoice['nama_bank'],
-                            //   dataInvoice['signature_user']['tanda_tangan'],
-                            //   //Company
-                            //   company[0]['logo'],
-                            //   company[0]['nama_company'],
-                            //   company[0]['no_hp'],
-                            //   company[0]['email'],
-                            //   company[0]['alamat'],
-                            //   company[0]['kota'],
-                            //   company[0]['provinsi'],
-                            //   true,
-                            // );
-                            // _quotationPopUp(
-                            //   dataInvoice['id'],
-                            //   dataInvoice['no_penawaran'],
-                            //   dataInvoice['hal_penawaran'],
-                            //   dataInvoice['nama_customer'],
-                            //   dataInvoice['tanggal'],
-                            //   dataInvoice['signature_user']['nama_lengkap'],
-                            //   dataInvoice['signature_user']['tanda_tangan'],
-                            //   company[0]['logo'],
-                            //   company[0]['nama_company'],
-                            //   company[0]['no_hp'],
-                            //   company[0]['email'],
-                            //   company[0]['provinsi'],
-                            //   company[0]['kota'],
-                            //   company[0]['alamat'],
-                            // );
                           }
                         },
                         child: const Text('Generate Invoice',
@@ -554,212 +529,365 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                 child: Lottie.asset('assets/lottie/loading.json'),
               ),
             )
-          : ListView(
-              shrinkWrap: true,
-              // physics: cekTrans.isEmpty
-              //     ? const NeverScrollableScrollPhysics()
-              //     : const AlwaysScrollableScrollPhysics(),
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListView.builder(
+          : isLoading2
+              ? Center(
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    child: Lottie.asset('assets/lottie/loading.json'),
+                  ),
+                )
+              : isLoadingDelete
+                  ? Center(
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        child: Lottie.asset('assets/lottie/loading.json'),
+                      ),
+                    )
+                  : ListView(
                       shrinkWrap: true,
-                      itemCount: 1,
-                      itemBuilder: (context, index) {
-                        return DataInvoiceWidget().data(
-                          dataInvoice['no_invoice'],
-                          dataInvoice['yth'],
-                          dataInvoice['sales'],
-                          dataInvoice['tanggal'],
-                          dataInvoice['tanggal_jatuh_tempo'],
-                          dataInvoice['signature_user']['nama_lengkap'],
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child:
-                          // child: cekTrans.isEmpty
-                          //     ? Column(
-                          //         children: const [
-                          //           SizedBox(height: 200),
-                          //           Text("Transportation Masih Kosong!"),
-                          //           Text(
-                          //             "Silahkan Tambahkan Transportation\nTerlebih dahulu.",
-                          //             textAlign: TextAlign.center,
-                          //           ),
-                          //         ],
-                          //       )
-                          //     : isLoadingDelete
-                          //         ? Center(
-                          //             child: Container(
-                          //               width: 60,
-                          //               height: 60,
-                          //               child: Lottie.asset('assets/lottie/loading.json'),
-                          //             ),
-                          //           )
-                          //         :
-                          ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: dataProductInvoice.length,
-                        reverse: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return IgnorePointer(
-                            ignoring:
-                                // invoce.isNotEmpty ? true : false,
-                                true,
-                            child: Dismissible(
-                              movementDuration: Duration.zero,
-                              // key: Key(cekTrans[index]['id'].toString()),
-                              key: Key("1"),
-                              direction: DismissDirection.endToStart,
-                              confirmDismiss: (direction) async {
-                                return await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Hapus Transportasi'),
-                                      content: Text(
-                                          // 'Apakah Anda ingin menghapus ${cekTrans[index]['tipe_mobil']}?'),
-                                          'Apakah Anda ingin menghapus tipe?'),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text('Cancel'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(
-                                                false); // Return false to cancel dismissal
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('Delete'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(
-                                                true); // Return true to proceed with dismissal
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
+                      // physics: cekTrans.isEmpty
+                      //     ? const NeverScrollableScrollPhysics()
+                      //     : const AlwaysScrollableScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 1,
+                              itemBuilder: (context, index) {
+                                return DataInvoiceWidget().data(
+                                  dataInvoice['no_invoice'],
+                                  dataInvoice['yth'],
+                                  dataInvoice['sales'],
+                                  dataInvoice['tanggal'],
+                                  dataInvoice['tanggal_jatuh_tempo'],
+                                  dataInvoice['signature_user']['nama_lengkap'],
                                 );
                               },
-                              // onDismissed: invoce.isNotEmpty
-                              //     ? null
-                              //     : (direction) {
-                              //         deleteTransportation(
-                              //             cekTrans[index]['id']);
-                              //         setState(() {
-                              //           cekTrans.removeAt(index);
-                              //         });
-                              //       },
-                              onDismissed: null,
-                              background: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                child: Icon(Icons.delete, color: Colors.white),
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 16),
-                              ),
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    width: double.infinity,
-                                    height: 115,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: const Color(0xFFB6B6B6)),
-                                      borderRadius: BorderRadius.circular(7),
-                                      // color:
-                                      //     const Color(0xFFFFFFFF),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          decoration: const BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(7),
-                                                topRight: Radius.circular(7)),
-                                            color: Color(0xFFC3EDFF),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 25),
+                              child: dataProductInvoice.isEmpty
+                                  ? const Padding(
+                                      padding: EdgeInsets.only(top: 100),
+                                      child: Center(
+                                        child: Text(
+                                          "Data Produk Invoice\nMasih Kosong Silahkan\nTambah Produk.",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 5),
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: dataProductInvoice.length,
+                                      reverse: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        return IgnorePointer(
+                                          ignoring: false,
+                                          child: Dismissible(
+                                            movementDuration: Duration.zero,
+                                            key: Key(dataProductInvoice[index]
+                                                    ['id']
+                                                .toString()),
+                                            direction:
+                                                DismissDirection.endToStart,
+                                            confirmDismiss: (direction) async {
+                                              return await showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                        'Hapus Produk Invoice'),
+                                                    content: Text(
+                                                        // 'Apakah Anda ingin menghapus ${cekTrans[index]['tipe_mobil']}?'),
+                                                        'Apakah Anda ingin menghapus tipe?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(
+                                                            false,
+                                                          ); // Return false to cancel dismissal
+                                                        },
+                                                      ),
+                                                      TextButton(
+                                                        child: const Text(
+                                                            'Delete'),
+                                                        onPressed: () {
+                                                          Navigator.of(context).pop(
+                                                              true); // Return true to proceed with dismissal
+                                                        },
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            onDismissed: (direction) {
+                                              deleteProductInvoice(
+                                                  dataProductInvoice[index]
+                                                      ['id']);
+                                              setState(() {
+                                                dataProductInvoice
+                                                    .removeAt(index);
+                                              });
+                                            },
+                                            background: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius:
+                                                    BorderRadius.circular(7),
+                                              ),
+                                              child: Icon(Icons.delete,
+                                                  color: Colors.white),
+                                              alignment: Alignment.centerRight,
+                                              padding: const EdgeInsets.only(
+                                                  right: 16),
+                                            ),
                                             child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 15),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                const SizedBox(height: 10),
+                                                Container(
+                                                  width: double.infinity,
+                                                  height: 115,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: const Color(
+                                                            0xFFB6B6B6)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            7),
+                                                    // color:
+                                                    //     const Color(0xFFFFFFFF),
+                                                  ),
+                                                  child: Column(
                                                     children: [
                                                       Container(
-                                                        width: 185,
-                                                        // color: Colors.amber,
-                                                        child: Text(
-                                                          '${dataProductInvoice[index]['deskripsi_barang']}'
-                                                              .toUpperCase(),
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                        width: double.infinity,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          7),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          7)),
+                                                          color:
+                                                              Color(0xFFC3EDFF),
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  vertical: 5),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Container(
+                                                                      width:
+                                                                          185,
+                                                                      // color: Colors.amber,
+                                                                      child:
+                                                                          Text(
+                                                                        '${dataProductInvoice[index]['deskripsi_barang']}'
+                                                                            .toUpperCase(),
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          fontSize:
+                                                                              13,
+                                                                          fontWeight:
+                                                                              FontWeight.w600,
+                                                                        ),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        maxLines:
+                                                                            1,
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          21,
+                                                                      child:
+                                                                          ElevatedButton(
+                                                                        style: ElevatedButton
+                                                                            .styleFrom(
+                                                                          primary:
+                                                                              const Color(0xFF5FC4F0),
+                                                                          elevation:
+                                                                              0, // Remove elevation
+                                                                        ),
+                                                                        onPressed:
+                                                                            () {
+                                                                          Get.to(
+                                                                            AddProductInvoiceOnly(
+                                                                              idInvoiceOnly: dataInvoice['id'].toString(),
+                                                                              edit: true,
+                                                                              indexProduct: index,
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                        child:
+                                                                            Text(
+                                                                          'Edit',
+                                                                          style:
+                                                                              TextStyle(fontSize: 11),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 1,
                                                         ),
                                                       ),
-                                                      SizedBox(
-                                                        height: 21,
-                                                        child: ElevatedButton(
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                            primary:
-                                                                const Color(
-                                                                    0xFF5FC4F0),
-                                                            elevation:
-                                                                0, // Remove elevation
-                                                          ),
-                                                          onPressed: () {
-                                                            // Get.to(
-                                                            //   EditTransportation(
-                                                            //     idTransportation:
-                                                            //         int.parse('${cekTrans[index]['id']}'),
-                                                            //     id_customer:
-                                                            //         int.parse('${dataQuotation['id']}'),
-                                                            //     tipeKendaraan:
-                                                            //         '${cekTrans[index]['tipe_mobil']}',
-                                                            //     lamaPenggunaan:
-                                                            //         '${cekTrans[index]['lama_penggunaan']}',
-                                                            //     jmlUnit:
-                                                            //         '${cekTrans[index]['jumlah']}',
-                                                            //     tanggalPenggunaan:
-                                                            //         '${cekTrans[index]['tanggal_penggunaan']}',
-                                                            //     harga:
-                                                            //         '${cekTrans[index]['harga']}',
-                                                            //     tujuanKendaraan:
-                                                            //         '${cekTrans[index]['tujuan']}',
-                                                            //   ),
-                                                            // );
-                                                          },
-                                                          child: Text(
-                                                            'Edit',
-                                                            style: TextStyle(
-                                                                fontSize: 11),
-                                                          ),
+                                                      Container(
+                                                        width: double.infinity,
+                                                        height: 1,
+                                                        color: const Color(
+                                                            0xFFB6B6B6),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 15,
+                                                          vertical: 8,
+                                                        ),
+                                                        child: Column(
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                const Text(
+                                                                  "Jumlah",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Color(
+                                                                        0xFF616161),
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  '${dataProductInvoice[index]['qty']} Barang',
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    color: Color(
+                                                                        0xFF616161),
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 3),
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                const Text(
+                                                                  "Harga",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Color(
+                                                                        0xFF616161),
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  "Rp ${currencyFormatter.format(double.parse(dataProductInvoice[index]['harga']))}",
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    color: Color(
+                                                                        0xFF616161),
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 8),
+                                                            Container(
+                                                              width: double
+                                                                  .infinity,
+                                                              height: 1,
+                                                              color: const Color(
+                                                                  0xFFB6B6B6),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 4),
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                const Text(""),
+                                                                Text(
+                                                                  "Rp ${currencyFormatter.format(double.parse(dataProductInvoice[index]['total']))}",
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    color: Color(
+                                                                        0xFF616161),
+                                                                    fontSize:
+                                                                        13,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            )
+                                                          ],
                                                         ),
                                                       )
                                                     ],
@@ -768,112 +896,15 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                                               ],
                                             ),
                                           ),
-                                        ),
-                                        Container(
-                                          width: double.infinity,
-                                          height: 1,
-                                          color: const Color(0xFFB6B6B6),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 15,
-                                            vertical: 8,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Jumlah",
-                                                    style: TextStyle(
-                                                      color: Color(0xFF616161),
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    '${dataProductInvoice[index]['qty']} Barang',
-                                                    style: const TextStyle(
-                                                      color: Color(0xFF616161),
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Harga",
-                                                    style: TextStyle(
-                                                      color: Color(0xFF616161),
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "Rp ${currencyFormatter.format(double.parse(dataProductInvoice[index]['harga']))}",
-                                                    style: const TextStyle(
-                                                      color: Color(0xFF616161),
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Container(
-                                                width: double.infinity,
-                                                height: 1,
-                                                color: const Color(0xFFB6B6B6),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(""),
-                                                  Text(
-                                                    "Rp ${currencyFormatter.format(double.parse(dataProductInvoice[index]['total']))}",
-                                                    style: const TextStyle(
-                                                      color: Color(0xFF616161),
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                      ],
+                                        );
+                                      },
                                     ),
-                                  ),
-                                ],
-                              ),
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        ),
+                        const SizedBox(height: 20)
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 20)
-              ],
-            ),
     );
   }
 }
