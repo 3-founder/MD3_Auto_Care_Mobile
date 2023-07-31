@@ -8,6 +8,7 @@ class DataInvoiceWidget {
     String tanggal,
     String tanggalJatuhTempo,
     String penandaTangan,
+    String ketPembayaran,
   ) {
     return Column(
       children: [
@@ -26,7 +27,7 @@ class DataInvoiceWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(noInvoice,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -56,7 +57,7 @@ class DataInvoiceWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(yth,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -86,7 +87,7 @@ class DataInvoiceWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(sales,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -116,7 +117,7 @@ class DataInvoiceWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(tanggal,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -176,8 +177,38 @@ class DataInvoiceWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(penandaTangan,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF505050),
+                      )),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          color: const Color(0xFFF2F2F2),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Ket Pembayaran",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF505050),
+                    )),
+                SizedBox(
+                  width: 200,
+                  child: Text(ketPembayaran.toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,

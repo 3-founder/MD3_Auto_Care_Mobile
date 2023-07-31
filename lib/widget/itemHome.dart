@@ -140,7 +140,7 @@ class ItemHome {
             ),
             const SizedBox(height: 10),
             Text(
-              "Buat\nPenawaran",
+              "Buat\nInvoice",
               textAlign: TextAlign.center,
               style: isMobile
                   ? const TextStyle(

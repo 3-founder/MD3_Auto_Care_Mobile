@@ -47,6 +47,7 @@ class InvoicePdf {
   ) async {
     final pdf = pw.Document();
     String formatDateInvoice = ConvertOriginalDate().dateFormatInvoice(tanggal);
+    String dateFormatFile = ConvertOriginalDate().dateFormat(tanggal);
     String formatDateInvoiceTempo =
         ConvertOriginalDate().dateFormatInvoice(tanggalJatuhTempo);
 
@@ -240,7 +241,7 @@ class InvoicePdf {
                     ),
                     pw.SizedBox(height: 3),
                     pw.Text(
-                      formatDateInvoice,
+                      formatDateInvoiceTempo,
                       style: pw.TextStyle(
                           fontSize: 7,
                           color: PdfColors.black,
@@ -855,45 +856,45 @@ class InvoicePdf {
 
     pdf.addPage(
       pw.MultiPage(
-          pageFormat: PdfPageFormat.a5.landscape,
-          margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-          // header: (context) {
-          //   return header;
-          // },
-          build: (pw.Context context) {
-            return [
-              pw.Container(
-                width: double.infinity,
-                decoration: ketPembayaran == "lunas"
-                    ? null
-                    : pw.BoxDecoration(
-                        image: pw.DecorationImage(image: imgBelumBayar)),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    header,
-                    pw.SizedBox(height: 7),
-                    WidgetTableInvoice().lineTable,
-                    WidgetTableInvoice().headerTable,
-                    WidgetTableInvoice().lineTable,
-                    dataTable,
-                    WidgetTableInvoice().lineTable,
-                    pw.SizedBox(height: 2),
-                    metodePembayaran,
-                  ],
-                ),
-              )
-            ];
-          }
-          // footer: (context) {
-          //   return address;
-          // },
-          ),
+        pageFormat: PdfPageFormat.a5.landscape,
+        margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+        // header: (context) {
+        //   return header;
+        // },
+        build: (pw.Context context) {
+          return [
+            pw.Container(
+              width: double.infinity,
+              decoration: ketPembayaran == "lunas"
+                  ? null
+                  : pw.BoxDecoration(
+                      image: pw.DecorationImage(image: imgBelumBayar)),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  header,
+                  pw.SizedBox(height: 7),
+                  WidgetTableInvoice().lineTable,
+                  WidgetTableInvoice().headerTable,
+                  WidgetTableInvoice().lineTable,
+                  dataTable,
+                  WidgetTableInvoice().lineTable,
+                  pw.SizedBox(height: 2),
+                  metodePembayaran,
+                ],
+              ),
+            )
+          ];
+        },
+        // footer: (context) {
+        //   return metodePembayaran;
+        // },
+      ),
     );
 
     // Save the PDF to a file
     final output = await getTemporaryDirectory();
-    final filePath1 = '${output.path}/penawaran.pdf';
+    final filePath1 = '${output.path}/INVOICE MD3 $yth $dateFormatFile.pdf';
     final file = File(filePath1);
     await file.writeAsBytes(await pdf.save());
     // await OpenFile.open(file.path);

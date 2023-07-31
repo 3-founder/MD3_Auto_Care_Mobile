@@ -566,6 +566,7 @@ class _DataInvoiceOnlyState extends State<DataInvoiceOnly> {
                                   dataInvoice['tanggal'],
                                   dataInvoice['tanggal_jatuh_tempo'],
                                   dataInvoice['signature_user']['nama_lengkap'],
+                                  dataInvoice['ket_pembayaran'],
                                 );
                               },
                             ),

@@ -25,7 +25,7 @@ class DataPenawaranWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(noPenawaran,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -55,7 +55,7 @@ class DataPenawaranWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(halPenawaran,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -85,7 +85,7 @@ class DataPenawaranWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(namaCustomer,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -115,7 +115,7 @@ class DataPenawaranWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(tanggal,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -145,7 +145,7 @@ class DataPenawaranWidget {
                       color: Color(0xFF505050),
                     )),
                 SizedBox(
-                  width: 250,
+                  width: 200,
                   child: Text(penandaTangan,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

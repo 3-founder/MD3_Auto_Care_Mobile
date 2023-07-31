@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:md3_auto_care/controllers/quotationController.dart';
@@ -117,6 +118,8 @@ class PenawaranPdf {
                 ],
               ),
               pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
                   pw.Container(
                     width: 65,
@@ -147,7 +150,10 @@ class PenawaranPdf {
                           ),
                         ),
                         pw.SizedBox(height: 2),
-                        pw.Text(""),
+                        pw.Text(
+                          "ss",
+                          style: const pw.TextStyle(color: PdfColors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -772,7 +778,8 @@ class PenawaranPdf {
 
     // Save the PDF to a file
     final output = await getTemporaryDirectory();
-    final filePath1 = '${output.path}/penawaran.pdf';
+    final filePath1 =
+        '${output.path}/$halPenawaran $namaCustomer $originalDatePenawaran.pdf';
     final file = File(filePath1);
     await file.writeAsBytes(await pdf.save());
 
